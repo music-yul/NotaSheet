@@ -4,7 +4,7 @@
 button,select{font:inherit}button{border:1px solid #cfd8e3;background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;color:#253044}button:hover{background:#eef3fa}button.on{background:#2563eb;color:#fff;border-color:#2563eb}
 .top{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 12px;background:#fff;border-bottom:1px solid #d7dfe9}.top .sp{flex:1}.top select{padding:4px 6px;border:1px solid #cfd8e3;border-radius:6px;background:#fff}
 .wrap{flex:1;display:flex;min-height:0}#pal{width:210px;background:#fff;border-right:1px solid #d7dfe9;padding:10px;overflow:auto;transition:width .15s}
-#pal.collapsed{width:34px;padding:6px 3px;overflow:hidden}#pal.collapsed .pc{display:none}#pcol{width:100%;margin-bottom:8px}
+#pal.collapsed{width:38px;padding:6px 4px;overflow:hidden}#pal.collapsed .pc,#pal.collapsed .ph b{display:none}.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.ph b{font-size:12px;color:#5b6a7e}#pcol{padding:1px 7px;font-size:11px;line-height:1.4;border-radius:5px}#pal.collapsed .ph{justify-content:center;margin-bottom:0}.grid button{display:flex;align-items:center;justify-content:center;min-height:34px}
 .sec{font-size:11px;font-weight:700;color:#7b8798;margin:12px 0 5px}.sec:first-of-type{margin-top:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.grid button{padding:6px 2px;font-size:12px;white-space:nowrap}
 #info{padding:8px;background:#f1f5fb;border-radius:6px;font-size:12px;min-height:34px}main{flex:1;overflow:auto;padding:16px}#paper{background:#fff;border-radius:8px;box-shadow:0 2px 12px #23334a1a;padding:10px;min-height:260px}
 #hint{font-size:12px;color:#5b6a7e;padding:6px 12px;background:#f6f8fb;border-top:1px solid #e2e8f0}#toast{position:fixed;left:50%;bottom:50px;transform:translateX(-50%);background:#253044;color:#fff;padding:7px 14px;border-radius:16px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}
@@ -16,9 +16,9 @@ button,select{font:inherit}button{border:1px solid #cfd8e3;background:#fff;borde
 <select id="key"><option>C</option><option>G</option><option>D</option><option>A</option><option>E</option><option>B</option><option>F#</option><option>F</option><option>Bb</option><option>Eb</option><option>Ab</option><option>Db</option></select>
 <select id="time"><option>4/4</option><option>3/4</option><option>2/4</option><option>6/8</option><option>3/8</option><option>2/2</option></select>
 <span class="sp"></span><button id="svg">SVG 저장</button><button id="clear">모두 지우기</button></div>
-<div class="wrap"><aside id="pal"><button id="pcol" title="팔레트 접기/펴기">◀ 접기</button><div class="pc">
+<div class="wrap"><aside id="pal"><div class="ph"><b>팔레트</b><button id="pcol" title="팔레트 접기/펴기">◀</button></div><div class="pc">
 <div class="sec">선택한 음</div><div id="info">선택 없음</div>
-<div class="sec">음표 길이</div><div class="grid"><button data-d="64">온</button><button data-d="32">2분</button><button data-d="16">4분</button><button data-d="8">8분</button><button data-d="4">16분</button><button data-d="2">32분</button><button data-d="1">64분</button><button id="dot">점 .</button><button id="rest">쉼표 R</button></div>
+<div class="sec">음표 길이</div><div class="grid"><button data-d="64"></button><button data-d="32"></button><button data-d="16"></button><button data-d="8"></button><button data-d="4"></button><button data-d="2"></button><button data-d="1"></button><button id="dot"></button><button id="rest"></button></div>
 <div class="sec">임시표</div><div class="grid"><button data-alt="1">♯</button><button data-alt="-1">♭</button><button data-alt="0">♮</button></div>
 <div class="sec">기호 · 효과</div><div class="grid" style="grid-template-columns:1fr 1fr"><button data-art="a.">스타카토</button><button data-art="a>">악센트</button><button data-art="a-">테누토</button><button data-art="a^">마르카토</button><button data-art="a@a">페르마타</button><button id="tie">붙임줄</button></div>
 </div></aside><main><div id="paper"></div></main></div>
@@ -90,7 +90,7 @@ function reflow(s){const evs=flat(s).map(x=>x.e);s.measures=[{ev:[]}];let cur={m
 /* ===== 화면 ===== */
 if(typeof Vex==='undefined'){window.__bar&&window.__bar('악보 엔진(VexFlow)을 불러오지 못했어요');throw new Error('VexFlow 없음')}
 const $=s=>document.querySelector(s),VF=Vex.Flow;
-let S=newScore(),sel=null,inp=null,dur=16,dotted=false,last=28,hist=[],fut=[];
+let S=newScore(),sel=null,inp=null,dur=16,dotted=false,last=28,hist=[],fut=[],pend=null;
 const curDur=()=>dotted&&DUR[dur*1.5]?dur*1.5:dur;
 const snap=()=>JSON.stringify({S,sel,inp,last});
 function act(fn){hist.push(snap());if(hist.length>100)hist.shift();fut=[];fn();render();syncUI()}
@@ -102,36 +102,38 @@ function toast(t){let d=$('#toast');d.textContent=t;d.style.opacity=1;clearTimeo
 function enter(spec){act(()=>{const r=place(S,inp,{rest:!!spec.rest,p:spec.p||null,d:curDur(),tie:false,art:''});inp=r.cur;if(spec.p)last=posOf(spec.p);
  const id=r.placed.at(-1).id,k=flat(S).findIndex(x=>x.e.id===id);sel={a:k,b:k}})}
 function toggleInput(){
- if(inp){inp=null}else{const r=selIdx();if(r){const f=flat(S)[r[0]];inp={m:f.m,t:startOf(S,f.m,f.i)}}else inp=bounds(S).at(-1);ensure(S,inp.m)}
+ pend=null;if(inp){inp=null}else{const r=selIdx();if(r){const f=flat(S)[r[0]];inp={m:f.m,t:startOf(S,f.m,f.i)}}else inp=bounds(S).at(-1);ensure(S,inp.m)}
  render();syncUI()}
 function setDur(d){dur=d;if(sel&&!inp)changeDur();syncUI()}
 function changeDur(){const f=selEv()[0];if(!f)return;act(()=>{const r=place(S,{m:f.m,t:startOf(S,f.m,f.i)},Object.assign({},f.e,{d:curDur()}));const k=flat(S).findIndex(x=>x.e.id===r.placed.at(-1).id);sel={a:k,b:k}})}
 function letter(l){
- if(inp)return enter({p:pitchNear(S,l,last)});
+ if(inp){const p=pitchNear(S,l,last);if(pend!==null)p.a=pend;pend=null;return enter({p})}
  if(sel)act(()=>selEv().forEach(x=>{if(!x.e.rest)x.e.p=pitchNear(S,l,posOf(x.e.p))}))}
+const pendAdd=n=>{pend=n>0?Math.min(2,(pend!==null&&pend>0?pend:0)+1):Math.max(-2,(pend!==null&&pend<0?pend:0)-1);syncUI()};
+const acc=n=>inp?pendAdd(n):alter(n);
 const alter=n=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.a=Math.max(-2,Math.min(2,x.e.p.a+n))}))};
 const natural=()=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.a=0}))};
 const octave=n=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.o=Math.max(0,Math.min(8,x.e.p.o+n))}))};
 const toggleArt=a=>{if(!sel)return toast('먼저 음표를 선택하세요');act(()=>{const es=selEv().filter(x=>!x.e.rest),on=!es.every(x=>x.e.art===a);es.forEach(x=>x.e.art=on?a:'')})};
 const toggleTie=()=>{if(!sel)return toast('먼저 음표를 선택하세요');act(()=>{const es=selEv().filter(x=>!x.e.rest),on=!es.every(x=>x.e.tie);es.forEach(x=>x.e.tie=on)})};
-const makeRest=()=>{if(inp)enter({rest:true});else if(sel)act(()=>selEv().forEach(x=>toRest(x.e)));else toast('음표를 선택하거나 N으로 입력 모드를 켜세요')};
+const makeRest=()=>{if(inp){pend=null;enter({rest:true})}else if(sel)act(()=>selEv().forEach(x=>toRest(x.e)));else toast('음표를 선택하거나 N으로 입력 모드를 켜세요')};
 function move(dir,shift){
  if(inp){const b=bounds(S),k=b.findIndex(x=>x.m===inp.m&&x.t===inp.t),n=k+dir;if(k>=0&&n>=0&&n<b.length){inp=b[n];ensure(S,inp.m)}render();return}
  const n=flat(S).length;if(!n)return;if(!sel){sel={a:0,b:0}}else{const h=Math.max(0,Math.min(n-1,sel.b+dir));sel=shift?{a:sel.a,b:h}:{a:h,b:h}}render();syncUI()}
 document.addEventListener('keydown',ev=>{
  if(/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName))return;
  const k=ev.key,low=k.toLowerCase(),ctrl=ev.ctrlKey||ev.metaKey;
- if(ctrl){if(low==='z'){ev.preventDefault();ev.shiftKey?redo():undo()}else if(low==='y'){ev.preventDefault();redo()}
+ if(ctrl){if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();octave(k==='ArrowUp'?1:-1)}else if(low==='z'){ev.preventDefault();ev.shiftKey?redo():undo()}else if(low==='y'){ev.preventDefault();redo()}
   else if(low==='a'){ev.preventDefault();const n=flat(S).length;if(n){sel={a:0,b:n-1};render();syncUI()}}return}
  if(low==='n'){ev.preventDefault();return toggleInput()}
- if(k==='Escape'){if(inp)inp=null;else sel=null;render();return syncUI()}
+ if(k==='Escape'){if(pend!==null)pend=null;else if(inp)inp=null;else sel=null;render();return syncUI()}
  if(k.length===1&&'1234567'.includes(k)){ev.preventDefault();return setDur({7:64,6:32,5:16,4:8,3:4,2:2,1:1}[k])}
  if(k==='.'){dotted=!dotted;syncUI();if(sel&&!inp)changeDur();return}
- if(low==='r'&&k.length===1)return makeRest();
+ if(k==='0')return makeRest();
  if(k.length===1&&'abcdefg'.includes(low))return letter(low);
- if(k==='+'||k==='=')return alter(1);if(k==='-')return alter(-1);if(low==='0')return natural();
+ if(k==='+'||k==='=')return acc(1);if(k==='-')return acc(-1);
  if(k==='ArrowLeft'||k==='ArrowRight'){ev.preventDefault();return move(k==='ArrowLeft'?-1:1,ev.shiftKey)}
- if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();return octave(k==='ArrowUp'?1:-1)}
+ if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();return alter(k==='ArrowUp'?1:-1)}
  if(k==='Delete'||k==='Backspace'){if(sel){ev.preventDefault();act(()=>selEv().forEach(x=>toRest(x.e)))}}
 });
 /* ---- 그리기 ---- */
@@ -189,6 +191,16 @@ $('#paper').addEventListener('click',ev=>{
 /* ---- 팔레트·툴바 ---- */
 const NAMEK={64:'온음표',32:'2분음표',16:'4분음표',8:'8분음표',4:'16분음표',2:'32분음표',1:'64분음표'};
 const ARTK={'a.':'스타카토','a>':'악센트','a-':'테누토','a^':'마르카토','a@a':'페르마타'};
+const noteSvg=d=>{const open=d>=32,stem=d<64,fl={8:1,4:2,2:3,1:4}[d]||0;
+ let s='<svg viewBox="0 0 24 28" width="19" height="23" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">';
+ s+='<ellipse cx="9" cy="21" rx="5.2" ry="3.7" transform="rotate(-20 9 21)" '+(open?'':'fill="currentColor" ')+'/>';
+ if(stem)s+='<path d="M13.6 19.6V3.5"/>';
+ for(let i=0;i<fl;i++)s+='<path d="M13.6 '+(3.5+i*3.6)+'c4 1.4 6 3.8 4.6 8"/>';
+ return s+'</svg>'};
+const KEYOF={64:'7',32:'6',16:'5',8:'4',4:'3',2:'2',1:'1'};
+document.querySelectorAll('[data-d]').forEach(b=>{const d=+b.dataset.d;b.innerHTML=noteSvg(d);b.title=NAMEK[d]+' ('+KEYOF[d]+')'});
+$('#dot').innerHTML=noteSvg(16).replace('</svg>','<circle cx="18.3" cy="21" r="1.6" fill="currentColor" stroke="none"/></svg>');$('#dot').title='점음표 (.)';
+$('#rest').innerHTML='<svg viewBox="0 0 24 28" width="19" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l5 6-5 6 5 6c-3-.5-5 .8-4.5 4"/></svg>';$('#rest').title='쉼표 (0)';
 function describe(e){if(e.rest)return'쉼표 · '+(NAMEK[e.d]||e.d+'틱');const p=e.p;return NAMES[p.s].toUpperCase()+({'-1':'♭','1':'♯','-2':'𝄫','2':'𝄪'}[p.a]||'')+p.o+' · '+(NAMEK[e.d]||(DUR[e.d][1]?(NAMEK[e.d/1.5]||'')+' (점)':''))+(e.art?' · '+ARTK[e.art]:'')+(e.tie?' · 붙임줄':'')}
 function syncUI(){
  document.querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('on',+b.dataset.d===dur));
@@ -196,17 +208,18 @@ function syncUI(){
  const es=selEv();$('#info').textContent=!es.length?'선택 없음':es.length>1?es.length+'개 선택':describe(es[0].e);
  const e1=es.filter(x=>!x.e.rest);document.querySelectorAll('[data-art]').forEach(b=>b.classList.toggle('on',!!e1.length&&e1.every(x=>x.e.art===b.dataset.art)));
  $('#tie').classList.toggle('on',!!e1.length&&e1.every(x=>x.e.tie));
- $('#hint').textContent=inp?'입력 중: 음 이름(C D E F G A B) · 1~7 길이 · . 점 · R 쉼표 · ←→ 커서 · Esc 종료':'N을 누르면 입력 시작 · 음표를 클릭해 선택 · Shift+클릭/←→ 범위 선택';
+ const PG={'1':'♯','2':'𝄪','-1':'♭','-2':'𝄫','0':'♮'};
+ $('#hint').textContent=inp?'입력 중: 음 이름(C~B) · 1~7 길이 · . 점 · 0 쉼표 · +/- 임시표 후 음 이름(예: 5++g) · ↑↓ 반음 · ←→ 커서 · Esc 종료'+(pend!==null?'   ▶ 임시표 대기: '+PG[pend]:''):'N을 누르면 입력 시작 · 음표를 클릭해 선택 · Shift+클릭/←→ 범위 선택';
 }
 $('#pal').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;
  if(b.dataset.d)setDur(+b.dataset.d);else if(b.id==='dot'){dotted=!dotted;syncUI();if(sel&&!inp)changeDur()}
  else if(b.dataset.art)toggleArt(b.dataset.art);else if(b.id==='tie')toggleTie();else if(b.id==='rest')makeRest();
- else if(b.dataset.alt!==undefined){+b.dataset.alt===0?natural():alter(+b.dataset.alt)}});
+ else if(b.dataset.alt!==undefined){const n=+b.dataset.alt;if(inp){if(n===0){pend=0;syncUI()}else pendAdd(n)}else n===0?natural():alter(n)}});
 $('#inbtn').onclick=toggleInput;$('#undo').onclick=undo;$('#redo').onclick=redo;
 $('#key').onchange=e=>act(()=>{S.key=e.target.value});
 $('#time').onchange=e=>act(()=>{S.time=e.target.value.split('/').map(Number);reflow(S);inp=null;sel=null});
 $('#clef').onchange=e=>act(()=>{S.clef=e.target.value;last=S.clef==='bass'?3*7:28});
-$('#pcol').onclick=()=>$('#pal').classList.toggle('collapsed');
+$('#pcol').onclick=()=>{const c=$('#pal').classList.toggle('collapsed');$('#pcol').textContent=c?'▶':'◀'};
 $('#clear').onclick=()=>{if(confirm('악보를 모두 지울까요?'))act(()=>{S=newScore();sel=null;inp=null})};
 $('#svg').onclick=()=>{const s=$('#paper svg');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(s)],{type:'image/svg+xml'}));a.download='악보.svg';a.click()};
 window.__S=()=>S;window.__sel=()=>sel;window.__inp=()=>inp;window.__R=()=>R;window.__EX=()=>EX;
