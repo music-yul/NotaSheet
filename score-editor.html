@@ -5,7 +5,7 @@ button,select{font:inherit}button{border:1px solid #cfd8e3;background:#fff;borde
 .top{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 12px;background:#fff;border-bottom:1px solid #d7dfe9}.top .sp{flex:1}.top select{padding:4px 6px;border:1px solid #cfd8e3;border-radius:6px;background:#fff}
 .wrap{flex:1;display:flex;min-height:0}#pal{width:236px;background:#fff;border-right:1px solid #d7dfe9;padding:10px;overflow:auto;transition:width .15s}
 #pal.collapsed{width:38px;padding:6px 4px;overflow:hidden}#pal.collapsed .pc,#pal.collapsed .ph b{display:none}.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.ph b{font-size:12px;color:#5b6a7e}#pcol{padding:1px 7px;font-size:11px;line-height:1.4;border-radius:5px}#pal.collapsed .ph{justify-content:center;margin-bottom:0}.grid button{display:flex;align-items:center;justify-content:center;min-height:34px}
-.sec{font-size:11px;font-weight:700;color:#7b8798;margin:12px 0 5px}#info{margin-bottom:2px}.grid{display:grid;gap:4px}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}.grid button{display:flex;align-items:center;justify-content:center;gap:3px;min-height:36px;padding:3px 2px}.gl{display:block;flex:none}.g3{grid-template-columns:repeat(3,1fr)}.tg{display:inline-flex;gap:3px}.sep{width:1px;height:26px;background:#d7dfe9;margin:0 5px}.top button{min-height:34px;display:inline-flex;align-items:center;justify-content:center;padding:3px 7px}.top .tg button{padding:3px 5px;min-width:34px}.psec{margin-top:10px}.psec>summary{cursor:pointer;font-size:11px;font-weight:700;color:#7b8798;list-style:none;user-select:none;padding:2px 0}.psec>summary::-webkit-details-marker{display:none}.psec>summary::before{content:'▾ '}.psec:not([open])>summary::before{content:'▸ '}.psec .grid{margin-top:5px}#g-txt button{font-size:12px}.kn{font-size:12px;font-weight:700}
+.sec{font-size:11px;font-weight:700;color:#7b8798;margin:12px 0 5px}#info{margin-bottom:2px}.grid{display:grid;gap:4px}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.wide{grid-column:span 2;font-size:12px}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}.grid button{display:flex;align-items:center;justify-content:center;gap:3px;min-height:36px;padding:3px 2px}.gl{display:block;flex:none}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.wide{grid-column:span 2;font-size:12px}.tg{display:inline-flex;gap:3px}.sep{width:1px;height:26px;background:#d7dfe9;margin:0 5px}.top button{min-height:34px;display:inline-flex;align-items:center;justify-content:center;padding:3px 7px}.top .tg button{padding:3px 5px;min-width:34px}.psec{margin-top:10px}.psec>summary{cursor:pointer;font-size:11px;font-weight:700;color:#7b8798;list-style:none;user-select:none;padding:2px 0}.psec>summary::-webkit-details-marker{display:none}.psec>summary::before{content:'▾ '}.psec:not([open])>summary::before{content:'▸ '}.psec .grid{margin-top:5px}.mc{grid-column:1/-1;font-size:11px;color:#7b8798;padding:2px 2px 0}.kl{font-size:10px;color:#8794a6;margin-left:2px}.on .kl{color:#dbe7ff}#g-stype button,#g-drum button,#g-meas button{font-size:12px;min-height:32px}#sec-drum{display:none}body[data-stype=drum] #sec-drum{display:block}body:not([data-stype=std]) #sec-clef,body:not([data-stype=std]) #sec-key,body:not([data-stype=std]) #g-acc,body:not([data-stype=std]) #g-dyn{display:none}#g-txt button{font-size:12px}.kn{font-size:12px;font-weight:700}
 #info{padding:8px;background:#f1f5fb;border-radius:6px;font-size:12px;min-height:34px}main{flex:1;overflow:auto;padding:16px}#paper{background:#fff;border-radius:8px;box-shadow:0 2px 12px #23334a1a;padding:10px;min-height:260px}
 #hint{font-size:12px;color:#5b6a7e;padding:6px 12px;background:#f6f8fb;border-top:1px solid #e2e8f0}#toast{position:fixed;left:50%;bottom:50px;transform:translateX(-50%);background:#253044;color:#fff;padding:7px 14px;border-radius:16px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}
 [hidden]{display:none!important}.fb{border:1px solid #cfd8e3;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;min-height:34px;display:inline-flex;align-items:center}.fb:hover{background:#eef3fa}#paper{width:710px;margin:0 auto}#paper svg [data-i]{cursor:pointer}#paper svg{display:block}
@@ -13,12 +13,15 @@ button,select{font:inherit}button{border:1px solid #cfd8e3;background:#fff;borde
 <body>
 <div class="top"><button id="inbtn">입력 모드 (N)</button><span class="sep"></span><span class="tg" id="g-notes"></span><span class="sep"></span><span class="tg" id="g-acc"></span><span class="sep"></span><button id="rest" class="ib"></button><span class="sep"></span><button id="undo">↶ 되돌리기</button><button id="redo">↷ 다시 실행</button><span class="sp"></span><button id="jsave" title="악보를 파일로 저장">악보 저장</button><label class="fb" title="저장한 악보 열기">악보 열기<input type="file" id="jopen" accept=".json" hidden></label><button id="svg">SVG 저장</button><button id="clear">모두 지우기</button><button id="cancel" hidden>취소</button><button id="done" class="on" hidden>✓ 문서에 넣기</button></div>
 <div class="wrap"><aside id="pal"><div class="ph"><b>팔레트</b><button id="pcol" title="팔레트 접기/펴기">◀</button></div><div class="pc"><div id="info">선택 없음</div>
-<details class="psec" data-k="clef" open><summary>음자리표</summary><div id="g-clef" class="grid g4"></div></details>
-<details class="psec" data-k="key" open><summary>조표</summary><div id="g-key" class="grid g3"></div></details>
+<details class="psec" data-k="stype" open><summary>악보 종류</summary><div id="g-stype" class="grid g2"></div></details>
+<details class="psec" data-k="meas" open><summary>마디 수</summary><div id="g-meas" class="grid g3"></div></details>
+<details class="psec" id="sec-clef" data-k="clef" open><summary>음자리표</summary><div id="g-clef" class="grid g4"></div></details>
+<details class="psec" id="sec-key" data-k="key" open><summary>조표</summary><div id="g-key" class="grid g3"></div></details>
+<details class="psec" id="sec-drum" data-k="drum" open><summary>드럼 악기</summary><div id="g-drum" class="grid g3"></div></details>
 <details class="psec" data-k="time" open><summary>박자표</summary><div id="g-time" class="grid g4"></div></details>
 <details class="psec" data-k="art" open><summary>기호 · 효과</summary><div id="g-art" class="grid g4"></div></details>
 <details class="psec" data-k="dyn" open><summary>셈여림</summary><div id="g-dyn" class="grid g4"></div></details>
-<details class="psec" data-k="txt" open><summary>가사 · 코드명</summary><div id="g-txt" class="grid g3"></div></details>
+<details class="psec" data-k="txt" open><summary>가사 · 코드명 · 텍스트</summary><div id="g-txt" class="grid g2"></div></details>
 </div></aside><main><div id="paper"></div></main></div>
 <div id="hint"></div><div id="toast"></div>
 <script>
@@ -47,11 +50,11 @@ const SIZES=[64,48,32,24,16,12,8,6,4,3,2,1],NAMES='cdefgab',SH='fcgdaeb',FL='bea
 const KEYN={C:0,G:1,D:2,A:3,E:4,B:5,'F#':6,'C#':7,F:-1,Bb:-2,Eb:-3,Ab:-4,Db:-5,Gb:-6,Cb:-7};
 const ALT={'-2':'bb','-1':'b','0':'','1':'#','2':'##'};
 let _id=1;
-const mk=o=>Object.assign({id:_id++,rest:false,p:null,tie:false,art:'',ss:false,se:false,dyn:'',ly:'',cd:''},o);
+const mk=o=>Object.assign({id:_id++,rest:false,p:null,tie:false,art:'',ss:false,se:false,dyn:'',ly:'',cd:'',tx:'',ch:[],tb:[],dr:[]},o);
 const keyAlt=(k,l)=>{const n=KEYN[k]||0;return n>0&&SH.slice(0,n).includes(l)?1:n<0&&FL.slice(0,-n).includes(l)?-1:0};
 const toKey=p=>NAMES[p.s]+ALT[p.a]+'/'+p.o;
-const cap=s=>s.time[0]*64/s.time[1];
-const newScore=()=>({clef:'treble',key:'C',time:[4,4],tsym:'',measures:[{ev:[]}]});
+const cap=s=>s.free?1e9:s.time[0]*64/s.time[1];
+const newScore=()=>({clef:'treble',key:'C',time:[4,4],tsym:'',free:false,stype:'std',fixed:false,nmeas:0,measures:[{ev:[]}]});
 const split=n=>{const o=[];for(const z of SIZES)while(n>=z){o.push(z);n-=z}return o};
 const used=m=>m.ev.reduce((t,e)=>t+e.d,0);
 const ensure=(s,i)=>{while(s.measures.length<=i)s.measures.push({ev:[]})};
@@ -60,31 +63,34 @@ const flat=s=>{const o=[];s.measures.forEach((m,mi)=>m.ev.forEach((e,i)=>o.push(
 const startOf=(s,m,i)=>s.measures[m].ev.slice(0,i).reduce((t,e)=>t+e.d,0);
 /* 커서(m,t)에 이벤트를 놓는다. 겹치는 기존 음은 덮어쓰고, 마디를 넘으면 붙임줄로 나눠 다음 마디(없으면 새로 생성)에 이어 놓는다. */
 function place(s,cur,e){
- let m=cur.m,t=cur.t,left=e.d,firstLoop=true;const C=cap(s),placed=[];
+ let m=cur.m,t=cur.t,left=e.d,firstLoop=true,full=false;const C=cap(s),placed=[];
  while(left>0){
+  if(s.fixed&&m>=s.measures.length){full=true;break}
   ensure(s,m);const mm=s.measures[m],d=Math.min(left,C-t),u=used(mm);
+  if(d<=0){if(s.fixed&&m+1>=s.measures.length){full=true;break}m++;t=0;continue}
   let a=0;const before=[],after=[],tail=[],gap=u<t?restsOf(t-u):[];
   for(const x of mm.ev){const b=a+x.d;
    if(b<=t)before.push(x);
    else if(a>=t+d)after.push(x);
    else{
-    if(a<t)split(t-a).forEach((n,j,r)=>before.push(Object.assign({},x,{id:_id++,d:n,tie:j<r.length-1?!x.rest:false,ss:j===0&&!!x.ss,se:j===r.length-1&&!!x.se,dyn:j?'':(x.dyn||''),ly:j?'':(x.ly||''),cd:j?'':(x.cd||'')})));
+    if(a<t)split(t-a).forEach((n,j,r)=>before.push(Object.assign({},x,{id:_id++,d:n,tie:j<r.length-1?!x.rest:false,ss:j===0&&!!x.ss,se:j===r.length-1&&!!x.se,dyn:j?'':(x.dyn||''),ly:j?'':(x.ly||''),cd:j?'':(x.cd||''),tx:j?'':(x.tx||''),ch:(x.ch||[]).map(q=>Object.assign({},q)),tb:(x.tb||[]).map(q=>Object.assign({},q)),dr:(x.dr||[]).slice()})));
     if(b>t+d)tail.push(...restsOf(b-(t+d)));
    }
    a=b;}
-  const pcs=split(d),neu=pcs.map((n,j)=>mk({rest:e.rest,p:e.p&&Object.assign({},e.p),art:j?'':e.art,d:n,tie:e.rest?false:(j<pcs.length-1||left>d?true:e.tie),ss:firstLoop&&j===0&&!!e.ss&&!e.rest,se:left<=d&&j===pcs.length-1&&!!e.se&&!e.rest,dyn:firstLoop&&j===0?(e.dyn||''):'',ly:firstLoop&&j===0?(e.ly||''):'',cd:firstLoop&&j===0?(e.cd||''):''}));firstLoop=false;
+  const pcs=split(d),neu=pcs.map((n,j)=>mk({rest:e.rest,p:e.p&&Object.assign({},e.p),art:j?'':e.art,d:n,tie:e.rest?false:(j<pcs.length-1||left>d?true:e.tie),ss:firstLoop&&j===0&&!!e.ss&&!e.rest,se:left<=d&&j===pcs.length-1&&!!e.se&&!e.rest,dyn:firstLoop&&j===0?(e.dyn||''):'',ly:firstLoop&&j===0?(e.ly||''):'',cd:firstLoop&&j===0?(e.cd||''):'',tx:firstLoop&&j===0?(e.tx||''):'',ch:e.rest?[]:(e.ch||[]).map(q=>Object.assign({},q)),tb:e.rest?[]:(e.tb||[]).map(q=>Object.assign({},q)),dr:e.rest?[]:(e.dr||[]).slice()}));firstLoop=false;
   mm.ev=[...before,...gap,...neu,...tail,...after];placed.push(...neu);
   left-=d;t+=d;if(t>=C){m++;t=0}
  }
- return{cur:{m,t},placed};
+ return{cur:{m,t},placed,full};
 }
 function bounds(s){const o=[];s.measures.forEach((mm,mi)=>{let t=0;mm.ev.forEach(e=>{o.push({m:mi,t});t+=e.d})});
  const L=s.measures.length-1,u=used(s.measures[L]);o.push(u>=cap(s)?{m:L+1,t:0}:{m:L,t:u});return o}
 const posOf=p=>p.o*7+p.s;
 const fromPos=(s,pos)=>{const st=((pos%7)+7)%7;return{s:st,o:Math.floor(pos/7),a:keyAlt(s.key,NAMES[st])}};
 const pitchNear=(s,l,prev)=>{const st=NAMES.indexOf(l);let best=null;for(let o=1;o<=7;o++){const pos=o*7+st;if(best===null||Math.abs(pos-prev)<Math.abs(best-prev))best=pos}return{s:st,o:Math.floor(best/7),a:keyAlt(s.key,l)}};
-const toRest=e=>{e.rest=true;e.p=null;e.tie=false;e.art='';e.ss=false;e.se=false;e.ly=''};
-function reflow(s){const evs=flat(s).map(x=>x.e);s.measures=[{ev:[]}];let cur={m:0,t:0};for(const e of evs)cur=place(s,cur,e).cur}
+const toRest=e=>{e.rest=true;e.p=null;e.tie=false;e.art='';e.ss=false;e.se=false;e.ly='';e.ch=[];e.tb=[];e.dr=[]};
+function reflow(s){const evs=flat(s).map(x=>x.e),sys=s.measures.map(q=>q.sys||''),fx=s.fixed;s.fixed=false;s.measures=[{ev:[]}];let cur={m:0,t:0};for(const e of evs)cur=place(s,cur,e).cur;sys.forEach((v,i)=>{if(v&&s.measures[i])s.measures[i].sys=v});s.fixed=fx;if(fx){s.nmeas=Math.max(s.nmeas||0,s.measures.length);while(s.measures.length<s.nmeas)s.measures.push({ev:[]})}}
+function setMeasureCount(s,n){n=Math.max(1,Math.min(200,n));while(s.measures.length>n)s.measures.pop();while(s.measures.length<n)s.measures.push({ev:[]})}
 
 /* ===== 화면 ===== */
 if(typeof Vex==='undefined'){window.__bar&&window.__bar('악보 엔진(VexFlow)을 불러오지 못했어요');throw new Error('VexFlow 없음')}
@@ -99,24 +105,40 @@ const undo=()=>{if(hist.length){fut.push(snap());loadSnap(hist.pop())}},redo=()=
 const selIdx=()=>sel?[Math.min(sel.a,sel.b),Math.max(sel.a,sel.b)]:null;
 const selEv=()=>{const r=selIdx();return r?flat(S).slice(r[0],r[1]+1):[]};
 function toast(t){let d=$('#toast');d.textContent=t;d.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>d.style.opacity=0,1800)}
-function enter(spec){act(()=>{const r=place(S,inp,{rest:!!spec.rest,p:spec.p||null,d:curDur(),tie:false,art:''});inp=r.cur;if(spec.p)last=posOf(spec.p);
- const id=r.placed.at(-1).id,k=flat(S).findIndex(x=>x.e.id===id);sel={a:k,b:k}})}
+function appendPoint(){for(let m=S.measures.length-1;m>=0;m--){const mm=S.measures[m];if(mm.ev.length){const t=used(mm);return t>=cap(S)?{m:m+1,t:0}:{m,t}}}return{m:0,t:0}}
+const lastEnd=()=>{const L=S.measures.length-1;return{m:L,t:used(S.measures[L])}};
+const clampCur=c=>S.fixed&&c.m>=S.measures.length?lastEnd():c;
+function enter(spec){
+ if(S.fixed&&(inp.m>=S.measures.length||inp.t>=cap(S)&&inp.m>=S.measures.length-1)){inp=lastEnd();render();return toast('마지막 마디예요. [+ 마디]로 늘리거나 마디 수를 바꾸세요')}
+ act(()=>{const r=place(S,inp,{rest:!!spec.rest,p:spec.p||null,tb:spec.tb||[],dr:spec.dr||[],d:curDur(),tie:false,art:''});
+  if(r.full)toast('마지막 마디예요. [+ 마디]로 늘리거나 마디 수를 바꾸세요');
+  inp=r.full?lastEnd():r.cur;if(spec.p)last=posOf(spec.p);
+  if(r.placed.length){const id=r.placed[r.placed.length-1].id,k=flat(S).findIndex(x=>x.e.id===id);sel={a:k,b:k}}})}
 function toggleInput(){
- pend=null;if(inp){inp=null}else{const r=selIdx();if(r){const f=flat(S)[r[0]];inp={m:f.m,t:startOf(S,f.m,f.i)}}else inp=bounds(S).at(-1);ensure(S,inp.m)}
+ pend=null;if(inp){inp=null}else{const r=selIdx();if(r){const f=flat(S)[r[0]];inp={m:f.m,t:startOf(S,f.m,f.i)}}else inp=appendPoint();inp=clampCur(inp);ensure(S,inp.m)}
  render();syncUI()}
 function setDur(d){dur=d;if(sel&&!inp)changeDur();syncUI()}
 function changeDur(){const f=selEv()[0];if(!f)return;act(()=>{const r=place(S,{m:f.m,t:startOf(S,f.m,f.i)},Object.assign({},f.e,{d:curDur()}));const k=flat(S).findIndex(x=>x.e.id===r.placed.at(-1).id);sel={a:k,b:k}})}
-function letter(l){
+const pitchesOf=e=>e.rest?[]:[e.p].concat(e.ch||[]);
+const normChord=e=>{if(e.rest||!e.p)return;const all=pitchesOf(e).sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a);e.p=all[0];e.ch=all.slice(1)};
+function addTone(p){const es=selEv().filter(x=>!x.e.rest);if(!es.length)return toast('먼저 음표를 선택하세요');
+ const e=es[es.length-1].e;if(pitchesOf(e).some(q=>posOf(q)===posOf(p)&&q.a===p.a))return toast('이미 있는 음이에요');
+ if(pitchesOf(e).length>=8)return toast('화음은 8음까지 쌓을 수 있어요');act(()=>{e.ch=(e.ch||[]).concat([p]);normChord(e)})}
+function chordLetter(l){const es=selEv().filter(x=>!x.e.rest);if(!es.length)return toast('음을 입력하거나 선택한 뒤 Shift+음 이름으로 화음을 쌓아요');
+ const e=es[es.length-1].e;let pos=Math.max.apply(null,pitchesOf(e).map(posOf))+1;while(NAMES[pos%7]!==l)pos++;
+ const p=fromPos(S,pos);if(pend!==null){p.a=pend;pend=null}addTone(p)}
+const addInterval=n=>{const es=selEv().filter(x=>!x.e.rest);if(!es.length)return toast('음을 먼저 선택하세요');const e=es[es.length-1].e;addTone(fromPos(S,Math.max.apply(null,pitchesOf(e).map(posOf))+n-1))};
+function letter(l,shift){if(shift)return chordLetter(l);
  if(inp){const p=pitchNear(S,l,last);if(pend!==null)p.a=pend;pend=null;return enter({p})}
- if(sel)act(()=>selEv().forEach(x=>{if(!x.e.rest)x.e.p=pitchNear(S,l,posOf(x.e.p))}))}
+ if(sel)act(()=>selEv().forEach(x=>{if(!x.e.rest){x.e.p=pitchNear(S,l,posOf(x.e.p));normChord(x.e)}}))}
 const pendAdd=n=>{pend=n>0?Math.min(2,(pend!==null&&pend>0?pend:0)+1):Math.max(-2,(pend!==null&&pend<0?pend:0)-1);syncUI()};
 const acc=n=>inp?pendAdd(n):alter(n);
-const alter=n=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.a=Math.max(-2,Math.min(2,x.e.p.a+n))}))};
-const natural=()=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.a=0}))};
-const octave=n=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.o=Math.max(0,Math.min(8,x.e.p.o+n))}))};
+const alter=n=>{if(sel)act(()=>selEv().forEach(x=>pitchesOf(x.e).forEach(q=>{q.a=Math.max(-2,Math.min(2,q.a+n))})))};
+const natural=()=>{if(sel)act(()=>selEv().forEach(x=>pitchesOf(x.e).forEach(q=>{q.a=0})))};
+const octave=n=>{if(sel)act(()=>selEv().forEach(x=>pitchesOf(x.e).forEach(q=>{q.o=Math.max(0,Math.min(8,q.o+n))})))};
 const toggleArt=a=>{if(!sel)return toast('먼저 음표를 선택하세요');act(()=>{const es=selEv().filter(x=>!x.e.rest),on=!es.every(x=>x.e.art===a);es.forEach(x=>x.e.art=on?a:'')})};
 const toggleTie=()=>{if(!sel)return toast('먼저 음표를 선택하세요');act(()=>{const es=selEv().filter(x=>!x.e.rest),on=!es.every(x=>x.e.tie);es.forEach(x=>x.e.tie=on)})};
-const setAlt=n=>{if(sel)act(()=>selEv().forEach(x=>{if(x.e.p)x.e.p.a=n}))};
+const setAlt=n=>{if(sel)act(()=>selEv().forEach(x=>pitchesOf(x.e).forEach(q=>{q.a=n})))};
 function toggleSlur(){
  if(!sel)return toast('먼저 음표를 선택하세요');
  const f=flat(S),r=selIdx(),idx=[];for(let k=r[0];k<=r[1];k++)if(!f[k].e.rest)idx.push(k);
@@ -131,19 +153,25 @@ function toggleDyn(c){if(!sel)return toast('먼저 음표를 선택하세요');c
 const fixChord=v=>v.replace(/#/g,'♯').replace(/([A-G])b/g,'$1♭');
 let tx=null;
 function openText(kind){
+ if(kind==='sys'){let m=null;if(sel)m=flat(S)[selIdx()[0]].m;else if(inp)m=inp.m;if(m===null)return toast('음표를 선택하거나 입력 모드에서 마디를 정하세요');tx={kind,m};render();syncUI();placeTx();return}
  if(!sel)return toast('먼저 음표를 선택하세요');
  const f=flat(S);let k=selIdx()[0];if(kind==='ly')while(k<f.length&&f[k].e.rest)k++;
  if(k>=f.length)return toast('입력할 음표가 없어요');
  sel={a:k,b:k};tx={kind,k};render();syncUI();placeTx()}
 function placeTx(){
- if(!tx)return;const f=flat(S)[tx.k];if(!f){closeTx();return}const p=NPOS[f.e.id];if(!p)return;
+ if(!tx)return;const bb=$('#paper svg').getBoundingClientRect();let left,top;
+ if(tx.kind==='sys'){const r=R.find(q=>q.m===tx.m&&q.from===0);if(!r)return closeTx();left=bb.left+r.sx;top=bb.top+r.y0-84}
+ else{const f=flat(S)[tx.k];if(!f)return closeTx();const p=NPOS[f.e.id];if(!p)return;left=bb.left+p.x-46;top=bb.top+(tx.kind==='ly'?p.yb+50:tx.kind==='cd'?p.y0-40:p.y0-62)}
  let el=$('#txt');if(!el){el=document.createElement('input');el.id='txt';el.addEventListener('keydown',txKey);document.body.append(el)}
- const bb=$('#paper svg').getBoundingClientRect();
- el.style.cssText='position:fixed;z-index:20;width:92px;font:13px Arial,Malgun Gothic,sans-serif;text-align:center;border:2px solid #2563eb;border-radius:5px;padding:3px 4px;background:#fff;left:'+(bb.left+p.x-46)+'px;top:'+(bb.top+(tx.kind==='ly'?p.yb+50:p.y0-40))+'px';
- el.placeholder=tx.kind==='ly'?'가사':'코드명';el.value=f.e[tx.kind]||'';el.focus();el.select()}
+ el.style.cssText='position:fixed;z-index:20;width:100px;font:13px Arial,Malgun Gothic,sans-serif;text-align:center;border:2px solid #2563eb;border-radius:5px;padding:3px 4px;background:#fff;left:'+left+'px;top:'+top+'px';
+ el.placeholder={ly:'가사',cd:'코드명',tx:'보표 텍스트',sys:'단 텍스트'}[tx.kind];
+ el.value=tx.kind==='sys'?(S.measures[tx.m].sys||''):(flat(S)[tx.k].e[tx.kind]||'');el.focus();el.select()}
 function closeTx(){const el=$('#txt');if(el)el.remove();tx=null}
-function commitTx(){const el=$('#txt');if(!el||!tx)return;let v=el.value.trim();if(tx.kind==='cd')v=fixChord(v);const k=tx.k;act(()=>{flat(S)[k].e[tx.kind]=v})}
+function commitTx(){const el=$('#txt');if(!el||!tx)return;let v=el.value.trim();if(tx.kind==='cd')v=fixChord(v);
+ if(tx.kind==='sys'){const m=tx.m;act(()=>{S.measures[m].sys=v.slice(0,40)});return}
+ const k=tx.k;act(()=>{flat(S)[k].e[tx.kind]=v})}
 function nextTx(){
+ if(tx.kind==='sys')return closeTx();
  const f=flat(S);let k=tx.k+1;if(tx.kind==='ly')while(k<f.length&&f[k].e.rest)k++;
  if(k>=f.length)return closeTx();tx.k=k;sel={a:k,b:k};render();syncUI();placeTx()}
 function txKey(ev){
@@ -154,13 +182,16 @@ function txKey(ev){
  else if(k==='Enter'){ev.preventDefault();commitTx();closeTx();render()}}
 const makeRest=()=>{if(inp){pend=null;enter({rest:true})}else if(sel)act(()=>selEv().forEach(x=>toRest(x.e)));else toast('음표를 선택하거나 N으로 입력 모드를 켜세요')};
 function move(dir,shift){
- if(inp){const b=bounds(S),k=b.findIndex(x=>x.m===inp.m&&x.t===inp.t),n=k+dir;if(k>=0&&n>=0&&n<b.length){inp=b[n];ensure(S,inp.m)}render();return}
+ if(inp){const b=bounds(S),k=b.findIndex(x=>x.m===inp.m&&x.t===inp.t),n=k+dir;if(k>=0&&n>=0&&n<b.length){inp=clampCur(b[n]);ensure(S,inp.m)}render();return}
  const n=flat(S).length;if(!n)return;if(!sel){sel={a:0,b:0}}else{const h=Math.max(0,Math.min(n-1,sel.b+dir));sel=shift?{a:sel.a,b:h}:{a:h,b:h}}render();syncUI()}
 document.addEventListener('keydown',ev=>{
  if(/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName))return;
  const k=ev.key,low=k.toLowerCase(),ctrl=ev.ctrlKey||ev.metaKey;
  if(ctrl){if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();octave(k==='ArrowUp'?1:-1)}else if(low==='z'){ev.preventDefault();ev.shiftKey?redo():undo()}else if(low==='y'){ev.preventDefault();redo()}
   else if(low==='a'){ev.preventDefault();const n=flat(S).length;if(n){sel={a:0,b:n-1};render();syncUI()}}return}
+ if(handleTypeKey(ev))return;
+ if(ev.altKey&&/^Digit[2-9]$/.test(ev.code)){ev.preventDefault();return addInterval(+ev.code.slice(5))}
+ if(low==='x'&&k.length===1){ev.preventDefault();return openText(ev.shiftKey?'sys':'tx')}
  if(low==='n'){ev.preventDefault();return toggleInput()}
  if(k==='Escape'){if(pend!==null)pend=null;else if(inp)inp=null;else sel=null;render();return syncUI()}
  if(k.length===1&&'1234567'.includes(k)){ev.preventDefault();return setDur({7:64,6:32,5:16,4:8,3:4,2:2,1:1}[k])}
@@ -170,75 +201,172 @@ document.addEventListener('keydown',ev=>{
  if(low==='k'&&k.length===1){ev.preventDefault();return openText('cd')}
  if(low==='t'&&k.length===1)return toggleTie();
  if(low==='s'&&k.length===1)return toggleSlur();
- if(k.length===1&&'abcdefg'.includes(low))return letter(low);
+ if(k.length===1&&'abcdefg'.includes(low))return letter(low,ev.shiftKey);
  if(k==='+'||k==='=')return acc(1);if(k==='-')return acc(-1);
  if(k==='ArrowLeft'||k==='ArrowRight'){ev.preventDefault();return move(k==='ArrowLeft'?-1:1,ev.shiftKey)}
  if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();return alter(k==='ArrowUp'?1:-1)}
  if(k==='Delete'||k==='Backspace'){if(sel){ev.preventDefault();act(()=>selEv().forEach(x=>toRest(x.e)))}}
 });
+/* ===== 악보 종류별 입력: 타브 · 드럼 · 리듬 ===== */
+const DRUMS={k:{n:'베이스드럼',s:'킥',key:'f/4',pos:31},s:{n:'스네어',s:'스네어',key:'c/5',pos:35},hh:{n:'하이햇',s:'하이햇',key:'g/5/x2',pos:39},oh:{n:'오픈 하이햇',s:'오픈햇',key:'g/5/x2',pos:39,open:1},cr:{n:'크래시',s:'크래시',key:'a/5/x2',pos:40},rd:{n:'라이드',s:'라이드',key:'f/5/x2',pos:38},t1:{n:'하이탐',s:'하이탐',key:'e/5',pos:37},t2:{n:'미들탐',s:'미들탐',key:'d/5',pos:36},t3:{n:'플로어탐',s:'플로어탐',key:'a/4',pos:33},ph:{n:'페달 하이햇',s:'페달햇',key:'d/4/x2',pos:29}};
+const DKEY={b:'k',s:'s',h:'hh',o:'oh',c:'cr',r:'rd',t:'t1',m:'t2',f:'t3',p:'ph'},DLET={k:'B',s:'S',hh:'H',oh:'O',cr:'C',rd:'R',t1:'T',t2:'M',t3:'F',ph:'P'};
+let curStr=1,fretBuf=null,fretT=0;
+const nStr=()=>S.stype==='tab6'?6:4,isTab=()=>S.stype==='tab6'||S.stype==='tab4';
+function setFret(e,str,f){e.tb=(e.tb||[]).filter(q=>q.s!==str).concat([{s:str,f}]);e.tb.sort((a,b)=>a.s-b.s)}
+function typeFret(d,add){
+ const now=Date.now(),es=selEv().filter(x=>!x.e.rest),two=!add&&fretBuf!==null&&fretBuf>=1&&now-fretT<700&&fretBuf*10+d<=24&&es.length;
+ fretT=now;
+ if(two){const e=es[es.length-1].e,f=fretBuf*10+d;fretBuf=null;return act(()=>setFret(e,curStr,f))}
+ fretBuf=add?null:d;
+ if(add){if(!es.length)return toast('음을 먼저 입력하거나 선택하세요');return act(()=>setFret(es[es.length-1].e,curStr,d))}
+ if(inp)return enter({tb:[{s:curStr,f:d}]});
+ if(es.length)act(()=>es.forEach(x=>setFret(x.e,curStr,d)));else toast('N을 눌러 입력을 시작하세요')}
+function drumHit(id,add){
+ if(inp&&!add)return enter({dr:[id]});
+ const es=selEv().filter(x=>!x.e.rest);
+ if(add){if(!es.length)return toast('악기를 먼저 입력하거나 선택하세요');const e=es[es.length-1].e;if((e.dr||[]).includes(id))return toast('이미 있는 악기예요');return act(()=>{e.dr=(e.dr||[]).concat([id])})}
+ if(es.length)act(()=>es.forEach(x=>{x.e.dr=[id]}));else toast('N을 눌러 입력을 시작하세요')}
+function handleTypeKey(ev){
+ const t=S.stype;if(t==='std')return false;const k=ev.key,low=k.toLowerCase();
+ if(!(k.length===1&&k>='0'&&k<='9')&&!['Shift','Alt','Control','Meta'].includes(k))fretBuf=null;
+ if(isTab()){
+  if(ev.shiftKey&&/^Digit[1-7]$/.test(ev.code)){ev.preventDefault();setDur({7:64,6:32,5:16,4:8,3:4,2:2,1:1}[+ev.code.slice(5)]);return true}
+  if(ev.altKey&&/^Digit[0-9]$/.test(ev.code)){ev.preventDefault();typeFret(+ev.code.slice(5),true);return true}
+  if(!ev.shiftKey&&!ev.altKey&&!ev.ctrlKey&&k.length===1&&k>='0'&&k<='9'){ev.preventDefault();typeFret(+k,false);return true}
+  if(k==='ArrowUp'||k==='ArrowDown'){ev.preventDefault();curStr=Math.max(1,Math.min(nStr(),curStr+(k==='ArrowUp'?-1:1)));render();syncUI();return true}
+  if(low==='r'&&k.length===1){ev.preventDefault();makeRest();return true}
+  return false}
+ if(t==='drum'){if(k.length===1&&DKEY[low]&&!ev.ctrlKey&&!ev.altKey){ev.preventDefault();drumHit(DKEY[low],ev.shiftKey);return true}
+  if(k==='0'){ev.preventDefault();makeRest();return true}return false}
+ if(t==='rhythm'){if(k===' '||(k.length===1&&'abcdefg'.includes(low)&&!ev.ctrlKey&&!ev.altKey)){ev.preventDefault();if(inp)enter({});else toast('N을 눌러 입력을 시작하세요');return true}return false}
+ return false}
+function typeClick(h,ev){
+ const t=S.stype,r=h.r,y=ev.clientY-$('#paper svg').getBoundingClientRect().top;
+ if(isTab()){const sp=(r.yb-r.y0)/(nStr()-1);curStr=Math.max(1,Math.min(nStr(),Math.round((y-r.y0)/sp)+1));inp={m:r.m,t:h.t};render();syncUI();return}
+ if(t==='drum'){const pos=38-Math.round((y-r.y0)/5);let best='s',bd=99;for(const id in DRUMS){const d=Math.abs(DRUMS[id].pos-pos);if(d<bd&&!DRUMS[id].open){bd=d;best=id}}inp={m:r.m,t:h.t};return ev.shiftKey?drumHit(best,true):enter({dr:[best]})}
+ if(t==='rhythm'){inp={m:r.m,t:h.t};return enter({})}}
+const TYPEN={std:'오선보',tab6:'기타 타브 (6현)',tab4:'우쿨렐레 타브 (4현)',drum:'드럼 악보',rhythm:'리듬 한 줄'};
+function setType(t){
+ if(S.stype===t)return;const n=flat(S).filter(x=>!x.e.rest).length;
+ if(n&&!confirm('악보 종류를 바꾸면 입력한 음표가 지워져요. 계속할까요?'))return;
+ act(()=>{const keep={key:S.key,time:S.time,tsym:S.tsym,free:S.free,fixed:S.fixed,nmeas:S.nmeas,clef:S.clef};S=newScore();Object.assign(S,keep,{stype:t});if(S.fixed)setMeasureCount(S,S.nmeas||4);sel=null;inp=null;last=28;pend=null;curStr=1;closeTx()})}
+function measAct(v){
+ if(v==='auto')return act(()=>{S.fixed=false});
+ if(v==='+')return act(()=>{ensure(S,S.measures.length);if(S.fixed)S.nmeas=S.measures.length});
+ if(v==='-'){const L=S.measures.length;if(L<=1)return toast('마디가 하나뿐이에요');if(S.measures[L-1].ev.length&&!confirm('마지막 마디의 음표가 지워져요. 계속할까요?'))return;
+  return act(()=>{S.measures.pop();if(S.fixed)S.nmeas=S.measures.length;sel=null;if(inp&&inp.m>=S.measures.length)inp=lastEnd()})}
+ const n=+v,lost=S.measures.slice(n).some(q=>q.ev.length);
+ if(lost&&!confirm(n+'마디 뒤의 음표가 지워져요. 계속할까요?'))return;
+ act(()=>{S.fixed=true;S.nmeas=n;setMeasureCount(S,n);sel=null;if(inp&&inp.m>=n)inp=lastEnd()})}
+function typeDesc(e){const t=S.stype,du=NAMEK[e.d]||((NAMEK[e.d/1.5]||'')+' (점)');
+ if(t==='drum')return (e.dr||[]).map(i=>DRUMS[i]?DRUMS[i].n:i).join(' + ')+' · '+du;
+ if(t==='rhythm')return '리듬 음표 · '+du;
+ return (e.tb||[]).map(q=>q.s+'번 줄 '+q.f+'프렛').join(', ')+' · '+du}
+function typeHint(){const t=S.stype;if(t==='std'||!inp)return;
+ $('#hint').textContent={tab6:'타브 입력: 숫자 = 프렛(두 자리는 빠르게) · ↑↓ 줄 선택(현재 '+curStr+'번 줄) · Shift+1~7 길이 · Alt+숫자 화음 · R 쉼표 · Esc 종료',tab4:'타브 입력: 숫자 = 프렛(두 자리는 빠르게) · ↑↓ 줄 선택(현재 '+curStr+'번 줄) · Shift+1~7 길이 · Alt+숫자 화음 · R 쉼표 · Esc 종료',drum:'드럼 입력: B 킥 · S 스네어 · H 하이햇 · O 오픈햇 · C 크래시 · R 라이드 · T/M/F 탐 · P 페달햇 · Shift+글자 동시 치기 · 1~7 길이 · 0 쉼표',rhythm:'리듬 입력: A~G 또는 Space = 음표 · 1~7 길이 · . 점 · 0 쉼표 · Esc 종료'}[t]}
 /* ---- 그리기 ---- */
 let R=[],EX={},NPOS={},SYS={};
-function render(){
- const paper=$('#paper');paper.innerHTML='';const W=660,kn=Math.abs(KEYN[S.key]||0);
- const wid=(mm,first,s0)=>Math.max(80,mm.ev.length*34+44)+(first?50+kn*11+(s0?34:0):0);
+const PW=660;
+const evW=e=>(e.d>=48?56:e.d>=32?46:e.d>=24?42:e.d>=16?36:32)+(pitchesOf(e).some(q=>q.a)?8:0);
+function rowsOf(){
+ const kn=S.stype==='std'?Math.abs(KEYN[S.key]||0):0;
+ if(S.free){const ev=S.measures[0].ev,room=PW-(50+kn*11)-40,rows=[];let from=0,x=0;
+  for(let i=0;i<ev.length;i++){const w=evW(ev[i]);if(i>from&&x+w>room){rows.push([{m:0,from,to:i,w:PW}]);from=i;x=0}x+=w}
+  const lastEv=ev.slice(from),nat=50+kn*11+40+lastEv.reduce((a,e)=>a+evW(e),0);
+  rows.push([{m:0,from,to:ev.length,w:Math.min(PW,Math.max(PW*.5,nat))}]);return rows}
+ const wid=(mm,first,s0)=>Math.max(S.fixed?130:80,mm.ev.length*34+44)+(first?50+kn*11+(s0?34:0):0);
  const rows=[];let row=[],x=0;
- S.measures.forEach((mm,mi)=>{let w=wid(mm,!row.length,!rows.length);if(row.length&&x+w>W){rows.push(row);row=[];x=0;w=wid(mm,true,false)}row.push({mi,w});x+=w});
+ S.measures.forEach((mm,mi)=>{let w=wid(mm,!row.length,!rows.length);if(row.length&&x+w>PW){rows.push(row);row=[];x=0;w=wid(mm,true,false)}row.push({m:mi,from:0,to:mm.ev.length,w});x+=w});
  if(row.length)rows.push(row);
- const rd=new VF.Renderer(paper,VF.Renderer.Backends.SVG);rd.resize(W+30,rows.length*170+50);const ctx=rd.getContext();
+ rows.forEach((row,ri)=>{if(ri<rows.length-1){const tot=row.reduce((a,r)=>a+r.w,0);row.forEach(r=>{r.w*=PW/tot})}});
+ return rows}
+function render(){
+ const paper=$('#paper');paper.innerHTML='';
+ const ST=S.stype,TABT=ST==='tab6'||ST==='tab4',LB=TABT?(ST==='tab6'?5:3):4,restOv=[];
+ const rows=rowsOf(),rd=new VF.Renderer(paper,VF.Renderer.Backends.SVG);rd.resize(PW+30,rows.length*170+70);const ctx=rd.getContext();
  const fl=flat(S),idx={};fl.forEach((x,k)=>idx[x.e.id]=k);const rg=selIdx(),lo=rg?rg[0]:1,hi=rg?rg[1]:0;
- const vf={},sysOf={};R=[];EX={};NPOS={};SYS={};
- rows.forEach((row,ri)=>{if(ri<rows.length-1){const tot=row.reduce((a,r)=>a+r.w,0);row.forEach(r=>r.w*=W/tot)}
-  let x=10;const y=ri*170+30;
-  row.forEach((r,ci)=>{const mm=S.measures[r.mi];sysOf[r.mi]=ri;
-   const st=new VF.Stave(x,y,r.w);if(ci===0){st.addClef(S.clef);st.addKeySignature(S.key);if(ri===0)st.addTimeSignature(S.tsym||S.time[0]+'/'+S.time[1])}
+ const vf={},rowOf={};R=[];EX={};NPOS={};SYS={};
+ rows.forEach((row,ri)=>{let x=10;const y=ri*170+50;
+  row.forEach((r,ci)=>{const mm=S.measures[r.m],evs=mm.ev.slice(r.from,r.to);
+   const st=TABT?new VF.TabStave(x,y,r.w,{num_lines:ST==='tab6'?6:4}):new VF.Stave(x,y,r.w);
+   if(ci===0){if(ST==='std'){st.addClef(S.clef);st.addKeySignature(S.key)}else if(ST==='drum')st.addClef('percussion');else if(TABT)st.addClef('tab');
+    if(ri===0&&!S.free)st.addTimeSignature(S.tsym||S.time[0]+'/'+S.time[1])}
+   if(ST==='rhythm')st.setConfigForLines([{visible:false},{visible:false},{visible:true},{visible:false},{visible:false}]);
+   if(S.free){st.setBegBarType(VF.Barline.type.NONE);st.setEndBarType(VF.Barline.type.NONE)}
    st.setContext(ctx).draw();x+=r.w;
-   const rect={m:r.mi,x:st.getX(),y:st.getY(),w:r.w,y0:st.getYForLine(0),yb:st.getYForLine(4),sx:st.getNoteStartX(),ex:st.getNoteEndX()-8};R.push(rect);EX[r.mi]=[];
-   if(!mm.ev.length)return;
-   const notes=mm.ev.map(e=>{const[du,dots]=DUR[e.d];
-    const n=new VF.StaveNote({clef:S.clef,keys:[e.rest?(S.clef==='bass'?'d/3':'b/4'):toKey(e.p)],duration:du+(e.rest?'r':''),auto_stem:true});
-    if(dots)VF.Dot.buildAndAttach([n],{all:true});
-    if(e.art)n.addModifier(new VF.Articulation(e.art).setPosition(VF.Modifier.Position.ABOVE));
-    const k=idx[e.id];if(k>=lo&&k<=hi)n.setGroupStyle({fillStyle:'#2563eb',strokeStyle:'#2563eb'});return n});
-   const voice=new VF.Voice({num_beats:S.time[0],beat_value:S.time[1]}).setMode(VF.Voice.Mode.SOFT).addTickables(notes);
-   VF.Accidental.applyAccidentals([voice],S.key);
+   R.push({m:r.m,from:r.from,to:r.to,x:st.getX(),y:st.getY(),w:r.w,y0:st.getYForLine(0),yb:st.getYForLine(LB),sx:st.getNoteStartX(),ex:st.getNoteEndX()-8,ri});
+   EX[r.m]=EX[r.m]||[];vf[r.m]=vf[r.m]||[];
+   if(!evs.length)return;
+   const notes=evs.map(e=>{const[du,dots]=DUR[e.d];let n;
+    if(TABT){n=e.rest?new VF.GhostNote({duration:du}):new VF.TabNote({positions:(e.tb||[]).map(q=>({str:q.s,fret:q.f})),duration:du},true)}
+    else if(ST==='drum'){if(e.rest)n=new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du+'r',auto_stem:true});
+     else{const ids=(e.dr||[]).filter(i=>DRUMS[i]).sort((a,b)=>DRUMS[a].pos-DRUMS[b].pos);n=new VF.StaveNote({clef:'percussion',keys:ids.map(i=>DRUMS[i].key),duration:du,auto_stem:true});
+      if(ids.some(i=>DRUMS[i].open))n.addModifier(new VF.Articulation('ao').setPosition(VF.Modifier.Position.ABOVE))}}
+    else if(ST==='rhythm'){n=e.rest?new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du+'r'}):new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du,stem_direction:1})}
+    else{const keys=e.rest?[S.clef==='bass'?'d/3':'b/4']:pitchesOf(e).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).map(toKey);
+     n=new VF.StaveNote({clef:S.clef,keys,duration:du+(e.rest?'r':''),auto_stem:true})}
+    if(dots&&!(TABT&&e.rest)){try{VF.Dot.buildAndAttach([n],{all:true})}catch(err){}}
+    if(e.art&&!TABT)n.addModifier(new VF.Articulation(e.art).setPosition(VF.Modifier.Position.ABOVE));
+    const k=idx[e.id];if(k>=lo&&k<=hi){const sty={fillStyle:'#2563eb',strokeStyle:'#2563eb'};(n.setGroupStyle||n.setStyle).call(n,sty)}return n});
+   const voice=new VF.Voice({num_beats:S.free?4:S.time[0],beat_value:S.free?4:S.time[1]}).setMode(VF.Voice.Mode.SOFT).addTickables(notes);
+   if(ST==='std')VF.Accidental.applyAccidentals([voice],S.key);
    new VF.Formatter().joinVoices([voice]).format([voice],Math.max(30,st.getNoteEndX()-st.getNoteStartX()-14));
-   const beams=VF.Beam.generateBeams(notes,S.time[1]===8&&S.time[0]%3===0?{groups:[new VF.Fraction(3,8)]}:undefined);voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());
-   vf[r.mi]=notes;notes.forEach((n,i)=>{const el=n.getSVGElement&&n.getSVGElement();if(el){el.dataset.m=r.mi;el.dataset.i=i}EX[r.mi].push(n.getAbsoluteX());let tp=st.getYForLine(0),bt=st.getYForLine(4);try{const bb=n.getBoundingBox();tp=Math.min(tp,bb.y);bt=Math.max(bt,bb.y+bb.h)}catch(e){}NPOS[mm.ev[i].id]={x:n.getAbsoluteX()+6,yb:st.getYForLine(4),y0:st.getYForLine(0),top:tp,bot:bt,ri};const sy=SYS[ri]||(SYS[ri]={top:1e9,bot:-1e9});sy.top=Math.min(sy.top,tp);sy.bot=Math.max(sy.bot,bt)});
+   const bo=Object.assign({},!S.free&&S.time[1]===8&&S.time[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},TABT?{stem_direction:-1}:{});const beams=VF.Beam.generateBeams(notes,bo);voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());
+   notes.forEach((n,j)=>{const i=r.from+j,e=evs[j],el=n.getSVGElement&&n.getSVGElement();if(el){el.dataset.m=r.m;el.dataset.i=i}
+    EX[r.m][i]=n.getAbsoluteX();vf[r.m][i]=n;rowOf[e.id]=ri;if(TABT&&e.rest)restOv.push({x:n.getAbsoluteX()+4,y:(st.getYForLine(0)+st.getYForLine(LB))/2,d:e.d});
+    let tp=st.getYForLine(0),bt=st.getYForLine(LB);try{const bb=n.getBoundingBox();tp=Math.min(tp,bb.y);bt=Math.max(bt,bb.y+bb.h)}catch(err){}
+    NPOS[e.id]={x:n.getAbsoluteX()+6,yb:st.getYForLine(LB),y0:st.getYForLine(0),top:tp,bot:bt,ri};const sy=SYS[ri]||(SYS[ri]={top:1e9,bot:-1e9});sy.top=Math.min(sy.top,tp);sy.bot=Math.max(sy.bot,bt)});
   })});
- fl.forEach((x,k)=>{if(!x.e.tie)return;const nx=fl[k+1];if(!nx||nx.e.rest)return;const a=vf[x.m]&&vf[x.m][x.i],b=vf[nx.m]&&vf[nx.m][nx.i];if(!a||!b)return;
-  const o={first_indices:[0],last_indices:[0]};
-  if(sysOf[x.m]===sysOf[nx.m])new VF.StaveTie(Object.assign({first_note:a,last_note:b},o)).setContext(ctx).draw();
+ if(ST==='std')fl.forEach((x,k)=>{if(!x.e.tie)return;const nx=fl[k+1];if(!nx||nx.e.rest)return;const a=vf[x.m]&&vf[x.m][x.i],b=vf[nx.m]&&vf[nx.m][nx.i];if(!a||!b)return;
+  const n=Math.min(pitchesOf(x.e).length,pitchesOf(nx.e).length),ix=[...Array(n).keys()],o={first_indices:ix,last_indices:ix};
+  if(rowOf[x.e.id]===rowOf[nx.e.id])new VF.StaveTie(Object.assign({first_note:a,last_note:b},o)).setContext(ctx).draw();
   else{new VF.StaveTie(Object.assign({first_note:a,last_note:null},o)).setContext(ctx).draw();new VF.StaveTie(Object.assign({first_note:null,last_note:b},o)).setContext(ctx).draw()}});
- {const stack=[];const drawSlur=(a,n,same)=>{const o={cps:[{x:0,y:10},{x:0,y:10}],invert:a.getStemDirection()===1};
+ if(ST==='std'){const stack=[];const drawSlur=(a,n,same)=>{const o={cps:[{x:0,y:10},{x:0,y:10}],invert:a.getStemDirection()===1};
   if(same)new VF.Curve(a,n,o).setContext(ctx).draw();else{new VF.Curve(a,null,o).setContext(ctx).draw();new VF.Curve(null,n,o).setContext(ctx).draw()}};
-  fl.forEach((x,k)=>{const n=vf[x.m]&&vf[x.m][x.i];
-   if(x.e.se&&stack.length){const xa=fl[stack.pop()],a=vf[xa.m]&&vf[xa.m][xa.i];if(a&&n&&a!==n)drawSlur(a,n,sysOf[xa.m]===sysOf[x.m])}
-   if(x.e.ss)stack.push(k)})}
+  fl.forEach(x=>{const n=vf[x.m]&&vf[x.m][x.i];
+   if(x.e.se&&stack.length){const xa=stack.pop(),a=vf[xa.m]&&vf[xa.m][xa.i];if(a&&n&&a!==n)drawSlur(a,n,rowOf[xa.e.id]===rowOf[x.e.id])}
+   if(x.e.ss)stack.push(x)})}
  {let h='';const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  fl.forEach(x=>{const e=x.e,p=NPOS[e.id];if(!p)return;const sy=SYS[p.ri],dy=Math.max(p.yb+36,sy.bot+16),ly=Math.max(p.yb+66,dy+30),cy=Math.min(p.y0-16,sy.top-10);
+  const cyOf=ri=>{const r0=R.find(q=>q.ri===ri),sy=SYS[ri];return Math.min(r0.y0-16,sy?sy.top-10:1e9)};
+  const FF='Malgun Gothic,Noto Sans KR,Arial,sans-serif';
+  fl.forEach(x=>{const e=x.e,p=NPOS[e.id];if(!p)return;const sy=SYS[p.ri],dy=Math.max(p.yb+36,sy.bot+16),ly=Math.max(p.yb+66,dy+30),cy=cyOf(p.ri);
    if(e.dyn&&DYNG[e.dyn]){const g=GLY[DYNG[e.dyn]];h+='<path transform="translate('+(p.x-(g.x0+g.x1)/2*.04).toFixed(1)+' '+dy+') scale(.04 -.04)" d="'+g.d+'" fill="#222"/>'}
-   if(e.ly)h+='<text x="'+p.x.toFixed(1)+'" y="'+ly+'" text-anchor="middle" font-size="14" font-family="Malgun Gothic,Noto Sans KR,Arial,sans-serif" fill="#222">'+esc(e.ly)+'</text>';
-   if(e.cd)h+='<text x="'+p.x.toFixed(1)+'" y="'+cy+'" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial,Malgun Gothic,sans-serif" fill="#222">'+esc(e.cd)+'</text>'});
+   if(e.ly)h+='<text x="'+p.x.toFixed(1)+'" y="'+ly+'" text-anchor="middle" font-size="14" font-family="'+FF+'" fill="#222">'+esc(e.ly)+'</text>';
+   if(e.cd)h+='<text x="'+p.x.toFixed(1)+'" y="'+cy+'" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial,'+FF+'" fill="#222">'+esc(e.cd)+'</text>';
+   if(e.tx)h+='<text x="'+p.x.toFixed(1)+'" y="'+(cy-20)+'" text-anchor="middle" font-size="14" font-style="italic" font-family="'+FF+'" fill="#222">'+esc(e.tx)+'</text>'});
+  R.forEach(r=>{if(r.from===0){const m=S.measures[r.m];if(m.sys)h+='<text x="'+r.sx.toFixed(1)+'" y="'+(cyOf(r.ri)-42)+'" font-size="16" font-weight="700" font-family="'+FF+'" fill="#222">'+esc(m.sys)+'</text>'}});
+  restOv.forEach(o=>{const bs={w:64,h:32,q:16,'8':8,'16':4,'32':2,'64':1}[DUR[o.d][0]],g=GLY[REST_G[bs]];h+='<path transform="translate('+o.x.toFixed(1)+' '+o.y.toFixed(1)+') scale(.045 -.045)" d="'+g.d+'" fill="#222"/>';if(DUR[o.d][1])h+='<circle cx="'+(o.x+(g.x1-g.x0)*.045+4).toFixed(1)+'" cy="'+(o.y-3).toFixed(1)+'" r="1.7" fill="#222"/>'});
   const sv=paper.querySelector('svg');if(h&&sv)sv.insertAdjacentHTML('beforeend',h)}
- if(inp){const r=R.find(q=>q.m===inp.m);if(r){const mm=S.measures[inp.m]||{ev:[]},ex=EX[inp.m]||[];let t=0,xx=null;
-  mm.ev.forEach((e,i)=>{if(t===inp.t)xx=ex[i]-7;t+=e.d});
-  if(xx===null)xx=ex.length?Math.min(ex[ex.length-1]+28,r.ex):r.sx+4;
-  ctx.save();ctx.setStrokeStyle('#2563eb');ctx.setLineWidth(2);ctx.beginPath();ctx.moveTo(xx,r.y0-16);ctx.lineTo(xx,r.yb+16);ctx.stroke();ctx.restore()}}
+ if(inp){const mm=S.measures[inp.m]||{ev:[]},ex=EX[inp.m]||[];let t=0,k=-1;mm.ev.forEach((e,i)=>{if(t===inp.t&&k<0)k=i;t+=e.d});if(k<0)k=mm.ev.length;
+  const r=R.find(q=>q.m===inp.m&&k>=q.from&&k<q.to)||[...R].reverse().find(q=>q.m===inp.m);
+  if(r){let xx;if(k<mm.ev.length&&k>=r.from&&k<r.to)xx=ex[k]-7;else xx=k>r.from?Math.min(ex[k-1]+28,r.ex):r.sx+4;
+   ctx.save();ctx.setStrokeStyle('#2563eb');ctx.setLineWidth(2);ctx.beginPath();ctx.moveTo(xx,r.y0-16);ctx.lineTo(xx,r.yb+16);ctx.stroke();if(isTab()){const sp=(r.yb-r.y0)/(nStr()-1);ctx.setFillStyle('#2563eb');ctx.fillRect(xx-5,r.y0+(curStr-1)*sp-3,10,6)}ctx.restore()}}
 }
-/* ---- 마우스: 음표 클릭 선택, Shift 범위 선택, 입력 모드에서는 클릭한 높이로 입력 ---- */
+/* ---- 마우스: 음표 클릭 선택 · Shift 범위 · 입력 모드에서는 오선 위 클릭으로 입력(미리보기 표시) ---- */
+function staffHit(x,y){
+ const r=R.find(q=>x>=q.x&&x<=q.x+q.w&&y>=q.y0-45&&y<=q.yb+45);if(!r)return null;
+ const mm=S.measures[r.m],ex=EX[r.m]||[];let t=0,best=0,bx=r.sx+4,bd=1e9;
+ mm.ev.forEach((e,i)=>{if(i>=r.from&&i<r.to){const d=Math.abs((ex[i]||0)-x);if(d<bd){bd=d;best=t;bx=(ex[i]||0)+6}}t+=e.d});
+ if(r.to===mm.ev.length){const endx=r.to>r.from?Math.min(ex[r.to-1]+28,r.ex):r.sx+4;if(Math.abs(endx-x)<bd){best=t;bx=endx+6}}
+ const top=S.clef==='bass'?26:38,pos=top-Math.round((y-r.y0)/5);
+ return{r,t:best,pos,bx,by:r.y0+(top-pos)*5}}
 $('#paper').addEventListener('click',ev=>{
  const g=ev.target.closest('[data-i]'),f=flat(S);
  if(g){const m=+g.dataset.m,i=+g.dataset.i,k=f.findIndex(x=>x.m===m&&x.i===i);
   sel=ev.shiftKey&&sel?{a:sel.a,b:k}:{a:k,b:k};if(inp)inp={m,t:startOf(S,m,i)};render();return syncUI()}
- const svg=$('#paper svg');if(!svg)return;const bb=svg.getBoundingClientRect(),x=ev.clientX-bb.left,y=ev.clientY-bb.top;
- const r=R.find(q=>x>=q.x&&x<=q.x+q.w&&y>=q.y-30&&y<=q.yb+30);
- if(!r){if(!ev.shiftKey){sel=null;render();syncUI()}return}
- const mm=S.measures[r.m],ex=EX[r.m]||[];
- if(inp){let t=0,best=0,bd=1e9;mm.ev.forEach((e,i)=>{const d=Math.abs(ex[i]-x);if(d<bd){bd=d;best=t}t+=e.d});
-  const endx=ex.length?Math.min(ex[ex.length-1]+28,r.ex):r.sx;if(Math.abs(endx-x)<bd)best=t;
-  inp={m:r.m,t:best};enter({p:fromPos(S,(S.clef==='bass'?26:38)-Math.round((y-r.y0)/5))})}
- else{const ks=f.map((q,k)=>q.m===r.m?k:-1).filter(k=>k>=0);sel=ks.length?{a:ks[0],b:ks.at(-1)}:null;render();syncUI()}
-});
+ const svg=$('#paper svg');if(!svg)return;const bb=svg.getBoundingClientRect(),h=staffHit(ev.clientX-bb.left,ev.clientY-bb.top);
+ if(!h){if(!ev.shiftKey){sel=null;render();syncUI()}return}
+ if(inp&&S.stype!=='std')return typeClick(h,ev);
+ if(inp){if(ev.shiftKey)return addTone(fromPos(S,h.pos));inp={m:h.r.m,t:h.t};return enter({p:fromPos(S,h.pos)})}
+ const base=f.findIndex(q=>q.m===h.r.m&&q.i===h.r.from);
+ sel=h.r.to>h.r.from&&base>=0?{a:base,b:base+(h.r.to-h.r.from)-1}:null;render();syncUI()});
+$('#paper').addEventListener('mousemove',ev=>{
+ const svg=$('#paper svg');if(!svg)return;let gh=svg.querySelector('#ghost');
+ if(!inp||S.stype!=='std'||ev.target.closest('[data-i]')){if(gh)gh.remove();return}
+ const bb=svg.getBoundingClientRect(),h=staffHit(ev.clientX-bb.left,ev.clientY-bb.top);if(!h){if(gh)gh.remove();return}
+ if(!gh){svg.insertAdjacentHTML('beforeend','<ellipse id="ghost" rx="6" ry="4.4" fill="#2563eb" opacity=".4" pointer-events="none"/>');gh=svg.querySelector('#ghost')}
+ gh.setAttribute('cx',h.bx);gh.setAttribute('cy',h.by);gh.setAttribute('transform','rotate(-20 '+h.bx+' '+h.by+')')});
+$('#paper').addEventListener('mouseleave',()=>{const gh=$('#paper svg #ghost');if(gh)gh.remove()});
 /* ---- 팔레트·툴바 ---- */
 const NAMEK={64:'온음표',32:'2분음표',16:'4분음표',8:'8분음표',4:'16분음표',2:'32분음표',1:'64분음표'};
 const ARTK={'a.':'스타카토','a>':'악센트','a-':'테누토','a^':'마르카토','a@a':'페르마타'};
@@ -272,27 +400,35 @@ $('#g-notes').innerHTML=[64,32,16,8,4,2,1].map(d=>'<button data-d="'+d+'" title=
 $('#g-acc').innerHTML=[-2,-1,0,1,2].map(a=>'<button data-abs="'+a+'" title="'+ACCN[a]+'">'+gsvg([{n:ACC_G[a]}],{s:.027})+'</button>').join('');
 $('#g-clef').innerHTML=[['treble','gClef','높은음자리표'],['bass','fClef','낮은음자리표']].map(c=>'<button data-clef="'+c[0]+'" title="'+c[2]+'">'+G1(c[1])+'</button>').join('');
 $('#g-key').innerHTML=KEYS.map(k=>{const c=KEYN[k],n=Math.abs(c);return '<button data-key="'+k+'" title="'+k.replace('#','샵').replace('b','플랫')+' 장조 (조표 '+(n?(c>0?'샵 ':'플랫 ')+n+'개':'없음')+')">'+keyIcon(k)+'</button>'}).join('');
-$('#g-time').innerHTML=TIMES.map(t=>'<button data-time="'+t+'" title="'+(t==='C'?'보통박자 (4/4)':t==='C|'?'알라브레베 (2/2)':t+'박자')+'">'+timeIcon(t)+'</button>').join('');
+$('#g-time').innerHTML=TIMES.map(t=>'<button data-time="'+t+'" title="'+(t==='C'?'보통박자 (4/4)':t==='C|'?'알라브레베 (2/2)':t+'박자')+'">'+timeIcon(t)+'</button>').join('')+'<button data-time="free" class="wide" title="박자 없음 · 마디선 없음 (계이름 읽기 등 자유 입력)">박자 없음</button>';
 $('#g-art').innerHTML=Object.keys(ART_G).map(a=>'<button data-art="'+a+'" title="'+ARTK[a]+'">'+gsvg([{n:ART_G[a]}],{s:a==='a@a'?.034:.052})+'</button>').join('')+'<button id="tie" title="붙임줄 (T)">'+arc(false)+'</button><button id="slur" title="이음줄 (S)">'+arc(true)+'</button>';
 $('#g-dyn').innerHTML=Object.keys(DYNG).map(c=>'<button data-dyn="'+c+'" title="'+c+' '+DYNN[c]+'">'+gsvg([{n:DYNG[c]}],{s:.024})+'</button>').join('');
-$('#g-txt').innerHTML='<button id="btnLy" title="선택한 음에 가사 입력 (L) · Space로 다음 음">가사 (L)</button><button id="btnCd" title="선택한 음에 코드명 입력 (K)">코드명 (K)</button>';
-function describeHTML(e){if(e.rest)return '쉼표 · '+(NAMEK[e.d]||(NAMEK[e.d/1.5]||'')+' (점)').replace('음표','');
- const p=e.p;return NAMES[p.s].toUpperCase()+(p.a?SM(ACC_G[p.a]):'')+p.o+' · '+(NAMEK[e.d]||(NAMEK[e.d/1.5]||'')+' (점)')+(e.art?' · '+ARTK[e.art]:'')+(e.tie?' · 붙임줄':'')+(e.ss||e.se?' · 이음줄':'')+(e.dyn?' · '+e.dyn:'')+(e.ly?' · 가사 '+e.ly.replace(/</g,'&lt;'):'')+(e.cd?' · 코드 '+e.cd:'')}
+$('#g-txt').innerHTML='<button id="btnLy" title="선택한 음에 가사 입력 (L) · Space로 다음 음">가사 (L)</button><button id="btnCd" title="선택한 음에 코드명 입력 (K)">코드명 (K)</button><button id="btnTx" title="선택한 음 위에 보표 텍스트 (X)">보표 텍스트 (X)</button><button id="btnSys" title="마디 위에 단 텍스트 (Shift+X)">단 텍스트 (⇧X)</button>';
+$('#g-stype').innerHTML=Object.keys(TYPEN).map(t=>'<button data-stype="'+t+'">'+TYPEN[t]+'</button>').join('');
+$('#g-meas').innerHTML='<button data-meas="auto" class="wide">자동 (입력하면 늘어남)</button>'+[4,8,12,16].map(n=>'<button data-meas="'+n+'">'+n+'마디</button>').join('')+'<button data-meas="+" title="맨 끝에 마디 추가">+ 마디</button><button data-meas="-" title="맨 끝 마디 삭제">− 마디</button><div id="mcount" class="mc"></div>';
+$('#g-drum').innerHTML=Object.keys(DRUMS).map(i=>'<button data-drum="'+i+'" title="'+DRUMS[i].n+' ('+DLET[i]+')">'+DRUMS[i].s+' <span class="kl">'+DLET[i]+'</span></button>').join('');
+function describeHTML(e){if(!e.rest&&S.stype!=='std')return typeDesc(e);if(e.rest)return '쉼표 · '+(NAMEK[e.d]||(NAMEK[e.d/1.5]||'')+' (점)').replace('음표','');
+ return pitchesOf(e).map(p=>NAMES[p.s].toUpperCase()+(p.a?SM(ACC_G[p.a]):'')+p.o).join(' ')+' · '+(NAMEK[e.d]||(NAMEK[e.d/1.5]||'')+' (점)')+(e.art?' · '+ARTK[e.art]:'')+(e.tie?' · 붙임줄':'')+(e.ss||e.se?' · 이음줄':'')+(e.dyn?' · '+e.dyn:'')+(e.ly?' · 가사 '+e.ly.replace(/</g,'&lt;'):'')+(e.cd?' · 코드 '+e.cd:'')+(e.tx?' · 텍스트 '+e.tx.replace(/</g,'&lt;'):'')}
 function syncUI(){
  $('#rest').innerHTML=gsvg([{n:REST_G[dur]}],dur>=32?{line:true,s:.028}:{s:.02});$('#rest').title=NAMEK[dur].replace('음표','쉼표')+' 입력 (0)';
  document.querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('on',+b.dataset.d===dur));
  $('#dot').classList.toggle('on',dotted);$('#inbtn').classList.toggle('on',!!inp);$('#inbtn').textContent=inp?'입력 모드 켜짐 (N)':'입력 모드 (N)';
+ document.body.dataset.stype=S.stype;
+ document.querySelectorAll('[data-stype]').forEach(b=>b.classList.toggle('on',b.dataset.stype===S.stype));
+ document.querySelectorAll('[data-meas]').forEach(b=>{const v=b.dataset.meas;b.classList.toggle('on',v==='auto'?!S.fixed:S.fixed&&+v===S.nmeas)});
+ {const mc=$('#mcount');if(mc)mc.textContent='현재 '+S.measures.length+'마디'+(S.fixed?' · 고정':' · 자동')}
  const es=selEv(),e1=es.filter(x=>!x.e.rest);
  $('#info').innerHTML=!es.length?'선택 없음':es.length>1?es.length+'개 선택':describeHTML(es[0].e);
  document.querySelectorAll('[data-art]').forEach(b=>b.classList.toggle('on',!!e1.length&&e1.every(x=>x.e.art===b.dataset.art)));
  $('#tie').classList.toggle('on',!!e1.length&&e1.every(x=>x.e.tie));$('#slur').classList.toggle('on',!!e1.length&&e1.some(x=>x.e.ss||x.e.se));
- const a0=e1.length&&e1.every(x=>x.e.p.a===e1[0].e.p.a)?e1[0].e.p.a:null;
+ const a0=S.stype==='std'&&e1.length&&e1.every(x=>x.e.p&&x.e.p.a===e1[0].e.p.a)?e1[0].e.p.a:null;
  document.querySelectorAll('[data-abs]').forEach(b=>b.classList.toggle('on',(pend!==null&&inp?+b.dataset.abs===pend:a0!==null&&+b.dataset.abs===a0)));
  {const d0=e1[0]&&e1[0].e.dyn;document.querySelectorAll('[data-dyn]').forEach(b=>b.classList.toggle('on',!!d0&&b.dataset.dyn===d0))}
  document.querySelectorAll('[data-clef]').forEach(b=>b.classList.toggle('on',b.dataset.clef===S.clef));
  document.querySelectorAll('[data-key]').forEach(b=>b.classList.toggle('on',b.dataset.key===S.key));
- document.querySelectorAll('[data-time]').forEach(b=>b.classList.toggle('on',b.dataset.time===(S.tsym||S.time.join('/'))));
- $('#hint').innerHTML=inp?'입력 중: 음 이름(C~B) · 1~7 길이 · . 점 · 0 쉼표 · +/- 임시표 후 음 이름(예: 5++g) · ↑↓ 반음 · T 붙임줄 · S 이음줄 · L 가사 · K 코드명 · ←→ 커서 · Esc 종료'+(pend!==null?'   ▶ 임시표 대기: '+SM(ACC_G[pend]):''):'N을 누르면 입력 시작 · 음표를 클릭해 선택 · Shift+클릭/←→ 범위 선택 · T 붙임줄 · S 이음줄';
+ document.querySelectorAll('[data-time]').forEach(b=>b.classList.toggle('on',b.dataset.time===(S.free?'free':(S.tsym||S.time.join('/')))));
+ $('#hint').innerHTML=inp?'입력 중: 음 이름(C~B) · 1~7 길이 · . 점 · 0 쉼표 · +/- 임시표 후 음 이름(예: 5++g) · ↑↓ 반음 · Shift+음 이름 화음 · Ctrl+↑↓ 옥타브 · T 붙임줄 · S 이음줄 · L 가사 · K 코드명 · X 텍스트 · ←→ 커서 · Esc 종료'+(pend!==null?'   ▶ 임시표 대기: '+SM(ACC_G[pend]):''):'N을 누르면 입력 시작 · 음표를 클릭해 선택 · Shift+클릭/←→ 범위 선택 · T 붙임줄 · S 이음줄';
+ typeHint();
 }
 function onTool(ev){const b=ev.target.closest('button');if(!b||b.id==='pcol')return;
  if(b.dataset.d)setDur(+b.dataset.d);
@@ -300,15 +436,16 @@ function onTool(ev){const b=ev.target.closest('button');if(!b||b.id==='pcol')ret
  else if(b.id==='rest')makeRest();
  else if(b.dataset.abs!==undefined){const n=+b.dataset.abs;if(inp){pend=n;syncUI()}else setAlt(n)}
  else if(b.dataset.art)toggleArt(b.dataset.art);else if(b.id==='tie')toggleTie();else if(b.id==='slur')toggleSlur();
- else if(b.dataset.dyn)toggleDyn(b.dataset.dyn);else if(b.id==='btnLy')openText('ly');else if(b.id==='btnCd')openText('cd');
+ else if(b.dataset.stype)setType(b.dataset.stype);else if(b.dataset.meas)measAct(b.dataset.meas);else if(b.dataset.drum)drumHit(b.dataset.drum,false);
+ else if(b.dataset.dyn)toggleDyn(b.dataset.dyn);else if(b.id==='btnLy')openText('ly');else if(b.id==='btnCd')openText('cd');else if(b.id==='btnTx')openText('tx');else if(b.id==='btnSys')openText('sys');
  else if(b.dataset.clef)act(()=>{S.clef=b.dataset.clef;last=S.clef==='bass'?21:28});
  else if(b.dataset.key)act(()=>{S.key=b.dataset.key});
- else if(b.dataset.time)act(()=>{const t=b.dataset.time;if(t==='C'){S.time=[4,4];S.tsym='C'}else if(t==='C|'){S.time=[2,2];S.tsym='C|'}else{S.time=t.split('/').map(Number);S.tsym=''}reflow(S);inp=null;sel=null})}
+ else if(b.dataset.time)act(()=>{const t=b.dataset.time;S.free=(t==='free');if(t==='C'){S.time=[4,4];S.tsym='C'}else if(t==='C|'){S.time=[2,2];S.tsym='C|'}else if(t!=='free'){S.time=t.split('/').map(Number);S.tsym=''}reflow(S);inp=null;sel=null})}
 $('#pal').addEventListener('click',onTool);$('.top').addEventListener('click',onTool);
 document.querySelectorAll('details.psec').forEach(d=>{try{if(localStorage.getItem('nota-ed-'+d.dataset.k)==='0')d.open=false}catch(e){}d.addEventListener('toggle',()=>{try{localStorage.setItem('nota-ed-'+d.dataset.k,d.open?'1':'0')}catch(e){}})});
 $('#inbtn').onclick=toggleInput;$('#undo').onclick=undo;$('#redo').onclick=redo;
 $('#pcol').onclick=()=>{const c=$('#pal').classList.toggle('collapsed');$('#pcol').textContent=c?'▶':'◀'};
-$('#clear').onclick=()=>{if(confirm('악보를 모두 지울까요?'))act(()=>{S=newScore();sel=null;inp=null})};
+$('#clear').onclick=()=>{if(confirm('악보를 모두 지울까요?'))act(()=>{const k={stype:S.stype,fixed:S.fixed,nmeas:S.nmeas};S=newScore();Object.assign(S,k);if(S.fixed)setMeasureCount(S,S.nmeas||4);sel=null;inp=null;last=28;pend=null;curStr=1;closeTx()})};
 $('#svg').onclick=()=>{const s=$('#paper svg');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(s)],{type:'image/svg+xml'}));a.download='악보.svg';a.click()};
 /* ===== 저장 형식(v1)과 문서 연동 ===== */
 /* 저장 형식: {app:'NotaScore', v:1, score:{clef,key,time,tsym,measures:[{ev:[{rest,d,p:{s,o,a},tie,ss,se,art,dyn,ly,cd}]}]}}
@@ -318,15 +455,20 @@ const clampI=(v,a,b,d0)=>{v=Math.round(+v);return Number.isFinite(v)?Math.max(a,
 function sanitizeScore(raw){
  if(!raw||raw.app!==FORMAT.app||typeof raw.score!=='object'||!raw.score)throw new Error('악보 파일이 아니에요');
  if(raw.v>FORMAT.v)throw new Error('더 새로운 버전에서 저장한 악보예요 (v'+raw.v+')');
- const s0=raw.score,s=newScore();
+ const s0=raw.score,s=newScore();s.stype=['std','tab6','tab4','drum','rhythm'].includes(s0.stype)?s0.stype:'std';const TB=s.stype==='tab6'||s.stype==='tab4',NS=s.stype==='tab6'?6:4;
  s.clef=s0.clef==='bass'?'bass':'treble';s.key=Object.prototype.hasOwnProperty.call(KEYN,s0.key)?s0.key:'C';
  const t=Array.isArray(s0.time)?s0.time:[4,4];s.time=[clampI(t[0],1,16,4),[2,4,8].includes(+t[1])?+t[1]:4];s.tsym=['C','C|'].includes(s0.tsym)?s0.tsym:'';
  const ms=Array.isArray(s0.measures)&&s0.measures.length?s0.measures.slice(0,400):[{ev:[]}];
  s.measures=ms.map(m=>({ev:(Array.isArray(m&&m.ev)?m.ev:[]).slice(0,200).map(e=>{
-  if(!e||!DUR[e.d])return null;const rest=!!e.rest||!e.p;
-  const ne=mk({rest,d:+e.d,tie:!rest&&!!e.tie,art:ARTS.includes(e.art)?e.art:'',ss:!rest&&!!e.ss,se:!rest&&!!e.se,dyn:DYNS.includes(e.dyn)?e.dyn:'',ly:String(e.ly||'').slice(0,30),cd:String(e.cd||'').slice(0,20)});
-  if(!rest)ne.p={s:clampI(e.p.s,0,6,0),o:clampI(e.p.o,0,8,4),a:clampI(e.p.a,-2,2,0)};
+  if(!e||!DUR[e.d])return null;const rest=!!e.rest||(s.stype==='std'&&!e.p)||(TB&&!(Array.isArray(e.tb)&&e.tb.length))||(s.stype==='drum'&&!(Array.isArray(e.dr)&&e.dr.some(i=>DRUMS[i])));
+  const ne=mk({rest,d:+e.d,tie:!rest&&!!e.tie,tx:String(e.tx||'').slice(0,40),art:ARTS.includes(e.art)?e.art:'',ss:!rest&&!!e.ss,se:!rest&&!!e.se,dyn:DYNS.includes(e.dyn)?e.dyn:'',ly:String(e.ly||'').slice(0,30),cd:String(e.cd||'').slice(0,20)});
+  if(!rest&&s.stype==='std'){ne.p={s:clampI(e.p.s,0,6,0),o:clampI(e.p.o,0,8,4),a:clampI(e.p.a,-2,2,0)};ne.ch=(Array.isArray(e.ch)?e.ch:[]).slice(0,7).filter(q=>q&&typeof q==='object').map(q=>({s:clampI(q.s,0,6,0),o:clampI(q.o,0,8,4),a:clampI(q.a,-2,2,0)}));normChord(ne)}
+  if(!rest&&TB){const seen={};ne.tb=e.tb.slice(0,NS).filter(q=>q&&typeof q==='object').map(q=>({s:clampI(q.s,1,NS,1),f:clampI(q.f,0,24,0)})).filter(q=>!seen[q.s]&&(seen[q.s]=1)).sort((a,b)=>a.s-b.s)}
+  if(!rest&&s.stype==='drum')ne.dr=Array.from(new Set(e.dr.filter(i=>DRUMS[i]))).slice(0,6)
   return ne}).filter(Boolean)}));
+ s.measures.forEach((q,i)=>{const sy=String((ms[i]&&ms[i].sys)||'').slice(0,40);if(sy)q.sys=sy});
+ s.free=!!s0.free;if(s.free)reflow(s);
+ s.fixed=!!s0.fixed;s.nmeas=clampI(s0.nmeas,0,200,0);if(s.fixed){s.nmeas=Math.max(s.nmeas,s.measures.length,1);while(s.measures.length<s.nmeas)s.measures.push({ev:[]})}else s.nmeas=0;
  const cp=cap(s);if(s.measures.some(m=>used(m)>cp))reflow(s);
  return s}
 const exportJSON=()=>JSON.stringify({app:FORMAT.app,v:FORMAT.v,score:S});
