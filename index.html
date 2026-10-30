@@ -1,6 +1,6 @@
 <!doctype html><html lang="ko" class="app-loading"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NotaSheet · 음악 활동지</title><script>
 /* NotaSheet 오류 기록: 오류가 나면 화면 오른쪽 아래에 버튼이 나타나고, 누르면 보고 내용이 복사돼요 */
-window.NOTA_VERSION='2026-10-30-r2';
+window.NOTA_VERSION='2026-10-31-r3';
 (()=>{
  const errs=[],clicks=[];
  const top3=s=>String(s||'').split('\n').slice(0,3).join(' | ').slice(0,260);
@@ -1014,7 +1014,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 (()=>{
  const $=s=>document.querySelector(s),E=()=>$('#editor');
  let sel=null;
- E().addEventListener('click',e=>{sel=e.target.closest('img,.document-textbox,table,.score')},true);
+ const pick=e=>{sel=e.target.closest('img,.document-textbox,table,.score')};E().addEventListener('click',pick,true);E().addEventListener('pointerdown',pick,true);
  const w=$('#objectWrap');
  if(w&&!w.querySelector('option[value=free]')){const o=document.createElement('option');o.value='free';o.textContent='자유 배치 · 끌어서 놓기';w.append(o)}
  document.addEventListener('pointerdown',e=>{
@@ -1270,7 +1270,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
  function decorSync(){const tb=sel&&sel.matches&&sel.matches('.document-textbox'),im=isPic(sel),b=$('.decor-b');if(!b)return;b.style.display=(tb||im)?'':'none';$('.decor-bg').style.display=tb?'':'none';
   if(tb||im){const cs=getComputedStyle(sel),w=parseFloat(cs.borderTopWidth)||0;$('#objBW').value=String(Math.min(3,Math.round(w)));const m=(cs.borderTopColor||'').match(/\d+/g);if(m&&w)$('#objBC').value='#'+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join('');if(tb)$('#objBG').value=sel.dataset.bg||'#ffffff'}}
  const sync=()=>{decorSync();const p=isPic(sel);if(tone)tone.closest('label').style.display=p?'':'none';if(cropBtn)cropBtn.style.display=p?'':'none';if(p&&tone)tone.value=sel.dataset.tone||''};
- E().addEventListener('click',e=>{sel=e.target.closest('img,.document-textbox,table,.score');sync()},true);sync();
+ {const pick=e=>{sel=e.target.closest('img,.document-textbox,table,.score');sync()};E().addEventListener('click',pick,true);E().addEventListener('pointerdown',pick,true)}sync();
  /* 6) Delete/Backspace로 개체 삭제 — 클릭한 개체, 또는 '그림만 든 문단'에 커서가 있을 때 */
  let armed=null;
  const OBJ='img,.document-textbox,table,.score',isInline=n=>n&&n.matches&&n.matches('img,.score');
@@ -1418,12 +1418,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
  });
  /* 문서에 넣기 > 음악 그룹 */
  const panel=$('.insert'),title=panel&&[...panel.querySelectorAll('.ins-title')].find(x=>x.textContent==='음악');
- if(panel){const nb=document.createElement('button');nb.type='button';nb.id='newScoreEditor';nb.title='새 악보 편집기 (베타)';nb.innerHTML='<b aria-hidden="true">♪</b><span>새 악보편집기</span>';nb.onclick=()=>open(null);title?title.after(nb):panel.append(nb)}
+ if(panel){
+  /* 옛 악보 '만들기' 버튼 제거: 악보 만들기는 새 편집기로 통일 (이미 만든 옛 악보의 수정은 아래 '구버전 악보 수정'으로 유지) */
+  [...panel.querySelectorAll('button')].forEach(b=>{const s=b.querySelector('span');if(s&&(s.textContent==='악보제작'||s.textContent==='악보')&&b!==panel.querySelector('#newScoreEditor'))b.remove()});
+  const nb=document.createElement('button');nb.type='button';nb.id='newScoreEditor';nb.title='악보 만들기 — 입력 모드(N)와 키보드로 악보를 만들어요';nb.innerHTML='<b aria-hidden="true">♫</b><span>악보제작</span>';nb.onclick=()=>open(null);title?title.after(nb):panel.append(nb)}
+ const legacy=document.getElementById('scoreEdit');if(legacy){legacy.textContent='구버전 악보 수정';legacy.title='이전 편집기로 만든 악보를 수정해요. 새 악보는 문서에 넣기 > 악보 만들기'}
  /* 넣은 악보 다시 편집: 더블클릭 또는 선택 후 툴바 버튼 */
  let sel=null;const bar=$('#objectTools');
  const btn=document.createElement('button');btn.type='button';btn.id='objectScoreEdit';btn.textContent='✎ 악보 편집';btn.style.display='none';btn.onclick=()=>{if(sel&&sel.dataset.notaScore)open(sel)};if(bar)bar.append(btn);
  const sync=()=>{btn.style.display=sel&&sel.dataset&&sel.dataset.notaScore?'':'none'};
- E().addEventListener('click',e=>{sel=e.target.closest('img');sync()},true);
+ const pickImg=e=>{sel=e.target.closest('img');sync()};
+ E().addEventListener('click',pickImg,true);E().addEventListener('pointerdown',pickImg,true);
  E().addEventListener('dblclick',e=>{const i=e.target.closest('img[data-nota-score]');if(i){e.preventDefault();sel=i;open(i)}});
+ /* 이미지는 pointerdown에서 선택·드래그가 시작되어 브라우저의 dblclick이 생략되므로, 짧은 간격의 두 번 누름을 직접 감지 */
+ let lastEl=null,lastT=0,lastX=0,lastY=0;
+ E().addEventListener('pointerdown',e=>{const i=e.target.closest&&e.target.closest('img[data-nota-score]'),now=performance.now();
+  if(i&&lastEl===i&&now-lastT<450&&Math.abs(e.clientX-lastX)<12&&Math.abs(e.clientY-lastY)<12){lastEl=null;sel=i;open(i);return}
+  lastEl=i;lastT=now;lastX=e.clientX;lastY=e.clientY},true);
 })();
 </script>
