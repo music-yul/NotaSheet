@@ -1,6 +1,6 @@
 <!doctype html><html lang="ko" class="app-loading"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NotaSheet · 음악 활동지</title><script>
 /* NotaSheet 오류 기록: 오류가 나면 화면 오른쪽 아래에 버튼이 나타나고, 누르면 보고 내용이 복사돼요 */
-window.NOTA_VERSION='2026-10-31-r3';
+window.NOTA_VERSION='2026-10-31-r4';
 (()=>{
  const errs=[],clicks=[];
  const top3=s=>String(s||'').split('\n').slice(0,3).join(' | ').slice(0,260);
@@ -1402,12 +1402,20 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
  }
  function close(){if(!ov)return;clearTimeout(ov._t);ov.remove();ov=null;target=null}
  function apply(d){
-  const uri='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(d.svg),meta=b64(d.json);
-  if(target&&target.isConnected){target.src=uri;target.dataset.notaScore=meta;if(!target.style.width)target.style.width=d.w+'px';target.style.height=''}
-  else insert('<p><img data-shape="1" data-nota-score="'+meta+'" alt="악보" src="'+uri+'" style="width:'+d.w+'px;max-width:100%"></p><p><br></p>');
+  /* 문제 빈자리가 있으면 편집기가 정답 그림(svgTea)과 학생용 그림(svgStu)을 함께 보냄: 지금 보기에 맞는 것을 src에, 나머지를 data-nota-alt에 보관 */
+  const mk=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s),stu=document.body.classList.contains('student'),two=typeof d.svgTea==='string'&&typeof d.svgStu==='string';
+  const uri=mk(two?(stu?d.svgStu:d.svgTea):d.svg),alt=two?mk(stu?d.svgTea:d.svgStu):'',ver=stu?'stu':'tea',meta=b64(d.json);
+  if(target&&target.isConnected){target.src=uri;target.dataset.notaScore=meta;if(two){target.dataset.notaAlt=alt;target.dataset.notaVer=ver}else{delete target.dataset.notaAlt;delete target.dataset.notaVer}if(!target.style.width)target.style.width=d.w+'px';target.style.height=''}
+  else insert('<p><img data-shape="1" data-nota-score="'+meta+'"'+(two?' data-nota-alt="'+alt+'" data-nota-ver="'+ver+'"':'')+' alt="악보" src="'+uri+'" style="width:'+d.w+'px;max-width:100%"></p><p><br></p>');
   try{persist()}catch(e){}
   window.dispatchEvent(new Event('resize'));
  }
+ /* 학생용/교사용 보기에 맞춰 문제 악보 그림 바꾸기 (보기 전환 · 인쇄 직전/직후 · 파일 열기) */
+ const wantV=()=>document.body.classList.contains('student')?'stu':'tea';
+ function syncViews(){const w=wantV();E().querySelectorAll('img[data-nota-alt]').forEach(i=>{if(i.dataset.notaVer===w)return;const cur=i.getAttribute('src');i.setAttribute('src',i.dataset.notaAlt);i.dataset.notaAlt=cur;i.dataset.notaVer=w})}
+ new MutationObserver(syncViews).observe(document.body,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(syncViews).observe(E(),{childList:true,subtree:true});
+ addEventListener('beforeprint',syncViews);addEventListener('afterprint',()=>setTimeout(syncViews,0));syncViews();
  window.addEventListener('message',ev=>{
   if(!ov)return;const fr=ov.querySelector('iframe');
   if(ev.source!==fr.contentWindow||ev.origin!==location.origin)return;
