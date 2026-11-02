@@ -625,7 +625,7 @@ const jgTri=(cx,cy,z,sel)=>'<path d="M'+cx.toFixed(1)+' '+(cy-z*1.05).toFixed(1)
 function renderJeong(){
  const paper=$('#paper'),V=S.jorient!=='h',unit=S.jcell,C=cap(S),cells=Math.max(1,Math.ceil(C/unit)),LY=jgCellItems([],unit),cols=LY.cols,rows=LY.rows;
  const fl=flat(S),idx={};fl.forEach((x,k)=>idx[x.e.id]=k);const rg=selIdx(),lo=rg?rg[0]:1,hi=rg?rg[1]:0;
- const cw=V?52:Math.max(36,Math.min(68,Math.floor((PW-60)/cells))),ch=V?48:54,GAP=V?(S.jlyc?38:26):0,TW=(V&&(S.jtitle||S.jsub))?76:0;
+ const cw=V?52:Math.max(36,Math.min(68,Math.floor((PW-60)/cells))),ch=V?48:54,GAP=V?(S.jlyc?42:26):0,TW=(V&&(S.jtitle||S.jsub))?76:0;
  const per=S.jper>0?S.jper:(V?Math.max(1,Math.floor((PW-TW-6)/(cw+GAP))):1);
  const nm=S.measures.length,blocks=V?Math.ceil(nm/per):nm,bh=V?cells*ch+64:ch+44,H=blocks*bh+40,mkl=(S.jmk||[]).filter(p=>p>0&&p<cells);
  let o='<svg xmlns="http://www.w3.org/2000/svg" width="'+(PW+30)+'" height="'+H+'" viewBox="0 0 '+(PW+30)+' '+H+'">';
@@ -660,7 +660,7 @@ function renderJeong(){
       else{if(e.jg&&JG[e.jg])g+=jgSvg(e.jg,cx,cy,fs*1.2,colr(p.sel));else if(e.yl)g+=yulGlyph(e.yl,e.yo||0,cx,cy+fs*.34,fs,colr(p.sel),SERIF);if(e.sg)g+=sgMark(e.sg,reg.x+reg.w-fs*.45,cy,Math.max(10,fs*.78))}
       egr[p.i]+=g})}}
    mm.ev.forEach((e,i)=>{if(egr[i])o+='<g data-m="'+m+'" data-i="'+i+'" style="cursor:pointer">'+egr[i]+'</g>';const c=firstCell[i];if(c===undefined)return;const r=cr(c);NPOS[e.id]={lx:x0-GAP/2,ly:r.y+r.h/2,x:r.x+r.w/2,y0:r.y,yb:r.y+r.h,top:r.y,bot:r.y+r.h,ri:0};
-    if(V&&e.ly){const chs=String(e.ly).split(''),lh=13,y1=r.y+(r.h-chs.length*lh)/2+10;chs.forEach((q,n)=>{o+='<text x="'+(x0-GAP/2)+'" y="'+(y1+n*lh).toFixed(1)+'" text-anchor="middle" font-size="12" font-family="'+FFK+'" fill="#222">'+escK(q)+'</text>'})}});
+    if(V&&e.ly){const chs=String(e.ly).split(''),lh=16,y1=r.y+(r.h-chs.length*lh)/2+12;chs.forEach((q,n)=>{o+='<text x="'+(x0-GAP/2)+'" y="'+(y1+n*lh).toFixed(1)+'" text-anchor="middle" font-size="15" font-family="'+FFK+'" fill="#222">'+escK(q)+'</text>'})}});
    if(V)(mm.sb||[]).forEach(p=>{if(p<1||p>cells)return;const y=y0+p*ch;o+='<path d="M'+(x0-3)+' '+(y-6)+' L'+(x0-12)+' '+y+' L'+(x0-3)+' '+(y+6)+'" fill="none" stroke="#111" stroke-width="1.7" pointer-events="none"/>'});
    if(inp&&inp.m===m){const c=Math.min(cells-1,Math.floor(inp.t/unit)),off=inp.t%unit,pd=Math.min(curDur(),unit-off),r=cr(c);let q=r;
     if(!(off===0&&pd>=unit)){const s0=Math.round(off/4),s1=Math.max(s0+1,Math.round((off+pd)/4));let x1=1e9,y1=1e9,x2=-1,y2=-1;for(let i=s0;i<s1&&i<LY.slots;i++){const sr=slotRect(r,i);x1=Math.min(x1,sr.x);y1=Math.min(y1,sr.y);x2=Math.max(x2,sr.x+sr.w);y2=Math.max(y2,sr.y+sr.h)}if(x2>0)q={x:x1,y:y1,w:x2-x1,h:y2-y1}}
@@ -993,6 +993,17 @@ function jgIns(){const g=jgCellOf();if(!g)return toast('정을 끼울 위치의 
   if(acc>=G||mi===S.measures.length-1){if(acc<G){bad=true;return}ev.splice(ii,0,mk({rest:true,p:null,d:S.jcell}));done=true}}
   if(done)reflow(S);sel=null});
  if(bad)toast('이 정은 앞 음의 이어짐(붙임) 중간이거나 아직 음이 없어서 끼울 수 없어요')}
+function jgRowIns(){const g=jgCellOf();if(!g)return toast('행을 끼울 위치의 음을 선택하거나 N으로 입력 위치를 정하세요');
+ const cells=Math.ceil(cap(S)/S.jcell);let acc=0,done=false;const G=g.m*cap(S);
+ act(()=>{for(let mi=0;mi<S.measures.length&&!done;mi++){const ev=S.measures[mi].ev;let ii=0;for(;ii<ev.length;ii++){if(acc>=G)break;acc+=ev[ii].d}
+  if(acc>=G){const blank=[];for(let q=0;q<cells;q++)blank.push(mk({rest:true,p:null,d:S.jcell}));ev.splice(ii,0,...blank);done=true}}
+  if(!done){const last=S.measures[S.measures.length-1].ev;for(let q=0;q<cells;q++)last.push(mk({rest:true,p:null,d:S.jcell}))}
+  reflow(S);sel=null;inp=null})}
+function jgRowDel(){const g=jgCellOf();if(!g)return toast('지울 행의 음을 선택하거나 N으로 입력 위치를 정하세요');
+ const G=g.m*cap(S),E=G+cap(S);let acc=0,sum=0;const del=[];
+ S.measures.forEach(q=>q.ev.forEach(e=>{const a=acc,b=acc+e.d;if(a>=G&&b<=E){del.push(e);sum+=e.d}else if(a<E&&b>G){sum=-1e9}acc=b}));
+ if(sum!==cap(S))return toast('이 행이 한 행을 꽉 채우지 않았거나 음이 행 밖으로 이어져 있어서 지울 수 없어요');
+ act(()=>{S.measures.forEach(q=>{q.ev=q.ev.filter(e=>!del.includes(e))});reflow(S);sel=null;inp=null})}
 function jgDel(){const g=jgCellOf();if(!g)return toast('지울 정의 음을 선택하거나 N으로 입력 위치를 정하세요');
  const G=g.m*cap(S)+g.c*S.jcell,E=G+S.jcell;let acc=0,sum=0;const del=[];
  S.measures.forEach(q=>q.ev.forEach(e=>{const a=acc,b=acc+e.d;if(a>=G&&b<=E){del.push(e);sum+=e.d}else if(a<E&&b>G){sum=-1e9}acc=b}));
@@ -1007,7 +1018,7 @@ $('#g-jgb').innerHTML='<div class="sub" style="margin-top:0">쓰는 방향</div>
  +'<div class="sub">정 (칸)</div>'+stp('gb','한 행의 정 수','jgbv')+'<div class="sub" style="margin-top:6px">한 정의 길이</div><div class="grid g4">'+[[8,'8분'],[16,'4분'],[24,'점4분'],[32,'2분']].map(a=>'<button data-jcell="'+a[0]+'" title="한 정(칸) 하나의 길이">'+a[1]+'</button>').join('')+'</div>'
  +'<div class="grid g2" style="margin-top:6px"><button data-jgins="1" title="선택한 정 앞에 빈 정을 끼워요">정 끼우기</button><button data-jgdel="1" title="선택한 정을 지우고 뒤를 당겨요">정 지우기</button></div>'
  +'<div class="sub">강 · 마디금 · 숨표</div>'+stp('gd','강당 정 수 (마디금 간격)','gdv')+'<div class="grid g1" style="margin-top:6px"><button data-jgline="1" title="선택한 정 바로 아래에 가로 마디금을 넣거나 빼요">선택한 정 아래 마디금 넣기 / 빼기</button><button data-jgbr="1" title="선택한 정 바로 아래, 그 행에 숨표(&lt;)를 넣거나 빼요">선택한 정 아래 숨표 넣기 / 빼기</button></div>'
- +'<div class="sub">행 (열)</div><div class="grid g2"><button data-meas="+">+ 행 추가</button><button data-meas="-">− 행 삭제</button></div>'+stp('jp','한 쪽의 행 수 (0 = 자동)','jperv')
+ +'<div class="sub">행 (열)</div><div class="grid g2"><button data-meas="+">+ 행 추가</button><button data-meas="-">− 행 삭제</button></div><div class="grid g1" style="margin-top:4px"><button data-jgrow="1" title="선택한 음이 있는 행 앞에 빈 행을 끼워요">선택한 행 앞에 빈 행 끼우기</button><button data-jgrdel=\"1\" title=\"선택한 음이 있는 행을 통째로 지우고 뒤 행을 당겨요\">선택한 행 지우기</button></div>'+stp('jp','한 쪽의 행 수 (0 = 자동)','jperv')
  +'<div class="sub">가사 칸</div><div class="grid g2">'+[['0','없음'],['1','있음']].map(a=>'<button data-jlyc="'+a[0]+'">'+a[1]+'</button>').join('')+'</div><div class="pn">가사 칸은 행 왼쪽 여백이 넓어져요. 정의 음을 선택하고 <b>L</b> 또는 [글자/문제 탭 → 가사 입력]으로 써요.</div>'
  +'<div class="sub">제목 · 부제 (오른쪽 세로 글씨)</div><div class="stp"><span>제목</span><input id="jTitle" class="pin" maxlength="14" placeholder="예: 도라지 타령"></div><div class="stp"><span>부제</span><input id="jSub" class="pin" maxlength="16" placeholder="예: 세마치 장단"></div>';
 ['jTitle','jSub'].forEach(id=>$('#'+id).addEventListener('change',()=>act(()=>{S.jtitle=$('#jTitle').value.slice(0,14);S.jsub=$('#jSub').value.slice(0,16)})));
@@ -1097,7 +1108,7 @@ function onTool(ev){const b=ev.target.closest('button');if(!b||b.id==='pcol')ret
  else if(b.dataset.yul)yulPut(b.dataset.yul);else if(b.dataset.jg)jgPut(b.dataset.jg);
  else if(b.id==='yauto')act(()=>{S.yauto=!S.yauto});else if(b.dataset.ybase!==undefined)act(()=>{S.ybase=+b.dataset.ybase;S.yauto=true});
  else if(b.dataset.jshow)act(()=>{S.jshow=b.dataset.jshow});else if(b.dataset.jorient)act(()=>{S.jorient=b.dataset.jorient});else if(b.dataset.jcell){jpat=null;applyGrid({jcell:+b.dataset.jcell})}
- else if(b.dataset.jpat!==undefined)setPat(+b.dataset.jpat);else if(b.dataset.jgins)jgIns();else if(b.dataset.jgdel)jgDel();else if(b.dataset.jgline)jgLine();else if(b.dataset.jgbr)jgBr();
+ else if(b.dataset.jpat!==undefined)setPat(+b.dataset.jpat);else if(b.dataset.jgins)jgIns();else if(b.dataset.jgdel)jgDel();else if(b.dataset.jgrow)jgRowIns();else if(b.dataset.jgrdel)jgRowDel();else if(b.dataset.jgline)jgLine();else if(b.dataset.jgbr)jgBr();
  else if(b.dataset.jlyc!==undefined)act(()=>{S.jlyc=b.dataset.jlyc==='1'});else if(b.dataset.ymk==='tie')extendPrev();else if(b.dataset.ymk==='rest')makeRest();
  else if(b.dataset.fg!==undefined)fgPut(b.dataset.fg);else if(b.dataset.rg)rgPut(b.dataset.rg);else if(b.dataset.rep)repPut(b.dataset.rep);else if(b.dataset.vo)repPut('vo',b.dataset.vo);else if(b.dataset.rm)repPut('rm',b.dataset.rm);
  else if(b.dataset.cl!==undefined){CH.l=+b.dataset.cl;syncUI()}else if(b.dataset.ca!==undefined){CH.a=+b.dataset.ca;syncUI()}else if(b.dataset.ck!==undefined){CH.k=b.dataset.ck;syncUI()}else if(b.dataset.co!==undefined){CH.oct=+b.dataset.co;syncUI()}else if(b.dataset.ci!==undefined){CH.inv=+b.dataset.ci;syncUI()}else if(b.dataset.cb!==undefined){CH.bass=+b.dataset.cb;syncUI()}else if(b.dataset.cba!==undefined){CH.ba=+b.dataset.cba;syncUI()}else if(b.dataset.cshow!==undefined){CH.show=!CH.show;syncUI()}else if(b.id==='chordPut')chordPut();else if(b.dataset.bm)beamSet(b.dataset.bm);
