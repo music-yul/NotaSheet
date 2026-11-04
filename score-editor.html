@@ -1713,7 +1713,7 @@ window.shellSync=function(){
   {const tv=$('#tb-view');if(tv)tv.hidden=!hasBlanks()}
   {const gn=$('#g-notes');if(gn&&gn.parentElement)gn.parentElement.hidden=S.stype==='jangdan'||S.stype==='jeonggan';const bt=$('#btnTx');if(bt)bt.hidden=GG(S.stype)}
   ['#tie','#slur'].forEach(q=>{const e=$(q);if(e)e.hidden=S.stype!=='std'});
-  {const J=S.stype==='jeonggan',C=['std','tab6','tab4'].includes(S.stype)&&!S.sv;['#tb-yul','#tb-yo','#tb-jmk'].forEach(q=>{const e=$(q);if(e)e.hidden=!J});['#tb-chord','#tb-cdg'].forEach(q=>{const e=$(q);if(e)e.hidden=!C});const rs=$('#rest');if(rs&&rs.parentElement)rs.parentElement.hidden=J}
+  {const J=S.stype==='jeonggan',C=['std','tab6','tab4'].includes(S.stype)&&!S.sv;['#tb-yul','#tb-yo','#tb-jmk'].forEach(q=>{const e=$(q);if(e)e.hidden=!J});{const e=$('#tb-chord');if(e)e.hidden=!C}{const e=$('#tb-cdg');if(e)e.hidden=!(['tab6','tab4'].includes(S.stype)&&!S.sv)}const rs=$('#rest');if(rs&&rs.parentElement)rs.parentElement.hidden=J}
   $('#hint').innerHTML=hintHTML();
  };
  function hintHTML(){
