@@ -1177,7 +1177,7 @@ function render0(){
  const rows=rowsOf(mergedMeasures()),ROWY=rowExtra(rows),rd=new VF.Renderer(paper,VF.Renderer.Backends.SVG);rd.resize(PW+30,rows.length*RH+70+ROWY[rows.length]);const ctx=rd.getContext();
  const fl=flat(S),idx={};fl.forEach((x,k)=>idx[x.e.id]=k);const rg=selIdx(),lo=rg?rg[0]:1,hi=rg?rg[1]:0;
  const FLS=VW.map((v,k)=>flat(v).map(x=>{x.k=k;return x})),FL=[].concat(...FLS);
- const VFN={},rowOf={},TUPN=new Map(),VFN2={},rowOf2={};R=[];EXS=VW.map(()=>({}));NPOS={};SYS={};
+ const VFN={},rowOf={},TUPN=new Map(),VFN2={},rowOf2={},GRN=[];R=[];EXS=VW.map(()=>({}));NPOS={};SYS={};
 rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
   row.forEach((r0,ci)=>{
    const GS=[];
@@ -1227,7 +1227,7 @@ rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
      n=new VF.StaveNote(Object.assign({clef:clefAt(V,r.m),keys,duration:du+(e.rest?'r':'')},STEM(vn)))}
     if(dots&&!(TABT&&e.rest)){try{VF.Dot.buildAndAttach([n],{all:true})}catch(err){}}
     if(e.art&&!TABT)n.addModifier(new VF.Articulation(e.art).setPosition(VF.Modifier.Position.ABOVE));
-    if(ST==='std'&&!e.rest&&e.gr&&e.gr.length){try{const gns=e.gr.map(q=>{const g=new VF.GraceNote({keys:[toKey(q)],duration:e.gr.length>1?'16':'8',slash:!e.grl&&e.gr.length===1,clef:clefAt(V,r.m)});if(q.a!==keyAlt(KY,NAMES[q.s]))g.addModifier(new VF.Accidental(q.a===0?'n':ALT[q.a]),0);return g});const gg=new VF.GraceNoteGroup(gns,true);if(gns.length>1)gg.beamNotes();n.addModifier(gg,0)}catch(err){}}
+    if(ST==='std'&&!e.rest&&e.gr&&e.gr.length){try{const gns=e.gr.map((q,gi)=>{const g=new VF.GraceNote({keys:[toKey(q)],duration:e.gr.length>1?'16':'8',slash:!e.grl&&e.gr.length===1,clef:clefAt(V,r.m)});if(window.__grSel&&window.__grSel.id===e.id&&window.__grSel.k===gi&&!window.__plain)g.setStyle({fillStyle:'#ea580c',strokeStyle:'#ea580c'});if(q.a!==keyAlt(KY,NAMES[q.s]))g.addModifier(new VF.Accidental(q.a===0?'n':ALT[q.a]),0);return g});GRN.push([e.id,gns]);const gg=new VF.GraceNoteGroup(gns,true);if(gns.length>1)gg.beamNotes();n.addModifier(gg,0)}catch(err){}}
     if(e.fg&&ST==='std'&&!e.rest){try{const ff=new VF.FretHandFinger(String(e.fg));ff.setPosition(VF.Modifier.Position.ABOVE);n.addModifier(ff,pitchesOf(e).length-1)}catch(err){}}
     if(ST==='std'&&!e.rest){if(S.nc){pitchesOf(e).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).forEach((p,ki)=>{const c=NCOL[pcOf(p)];try{n.setKeyStyle(ki,{fillStyle:c,strokeStyle:c})}catch(err){}})}
      if(e.bl){const sty={fillStyle:'#c0392b',strokeStyle:'#c0392b'};(n.setGroupStyle||n.setStyle).call(n,sty)}}
@@ -1250,6 +1250,7 @@ rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
     if(voice2){const bo2=Object.assign({},!S.free&&TM[1]===8&&TM[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},{stem_direction:-SD1});voice2.draw(ctx,st);VF.Beam.generateBeams(vnotes2,bo2).forEach(b=>b.setContext(ctx).draw());notes2.forEach((n,j)=>{VFN2[EV2[j].id]=n;rowOf2[EV2[j].id]=li})}
     if(!evs.length){TPL.forEach(t=>{try{t.setContext(ctx).draw()}catch(err){}});return}
    const bo=Object.assign({},!S.free&&TM[1]===8&&TM[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},TABT?{stem_direction:-1}:{});const hasT=TPL.length>0;if(TWO)bo.stem_direction=SD1;const beams=(!TABT&&!hasT&&!TWO&&evs.some(e=>e.bm||e.bg))?customBeams(evs,notes,startOf(V,r.m,r.from),TM):VF.Beam.generateBeams(hasT?vnotes:notes,bo);voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());TPL.forEach(t=>{try{t.setContext(ctx).draw()}catch(err){}});
+   GRN.forEach(([gid,gs])=>gs.forEach((g,gi)=>{const el=g.getSVGElement&&g.getSVGElement();if(el&&!el.dataset.gn){el.dataset.gn=gid+':'+gi;el.style.cursor='pointer'}}));
    notes.forEach((n,j)=>{const inner=TUPN.get(n);if(!inner)return;inner.forEach(x=>{const el=x.getSVGElement&&x.getSVGElement();if(el){el.dataset.m=r.m;el.dataset.i=r.from+j;el.dataset.k=k;try{const bb=el.getBBox();if(bb&&bb.width>0){const hr=document.createElementNS('http://www.w3.org/2000/svg','rect');hr.setAttribute('x',bb.x-5);hr.setAttribute('y',bb.y-5);hr.setAttribute('width',bb.width+10);hr.setAttribute('height',bb.height+10);hr.setAttribute('fill','transparent');hr.setAttribute('class','hit');el.insertBefore(hr,el.firstChild)}}catch(err){}}})});
    notes.forEach((n,j)=>{const i=r.from+j,e=evs[j],el=n.getSVGElement&&n.getSVGElement();if(el){el.dataset.m=r.m;el.dataset.i=i;el.dataset.k=k;if(el.getBBox){try{const bb=el.getBBox();if(bb&&bb.width>0){const hr=document.createElementNS('http://www.w3.org/2000/svg','rect');hr.setAttribute('x',bb.x-7);hr.setAttribute('y',bb.y-5);hr.setAttribute('width',bb.width+14);hr.setAttribute('height',bb.height+10);hr.setAttribute('fill','transparent');hr.setAttribute('stroke','none');hr.setAttribute('class','hit');el.insertBefore(hr,el.firstChild)}}catch(err){}}}
     EXS[k][r.m][i]=n.getAbsoluteX();VFN[e.id]=n;rowOf[e.id]=li;if(TABT&&e.rest)restOv.push({x:n.getAbsoluteX()+4,y:(st.getYForLine(0)+st.getYForLine(LB))/2,d:e.d});
@@ -1818,35 +1819,61 @@ window.__tupFill=null;
 /* ---- 팔레트 ---- */
 const beamSec=q$('details.psec[data-k="beam"]');
 const mkSec=(k,types,title,html,open)=>{const d=document.createElement('details');d.className='psec';d.dataset.tab='setup';d.dataset.types=types;d.dataset.k=k;if(open)d.open=true;d.innerHTML='<summary>'+title+'</summary>'+html;return d};
+/* 기호 그림 (작은 SVG) */
+const IC={};
+{const hd=(x,y,s,f)=>'<ellipse cx="'+x+'" cy="'+y+'" rx="'+(4.3*s)+'" ry="'+(3*s)+'" transform="rotate(-22 '+x+' '+y+')"'+(f===false?' fill="none" stroke="currentColor" stroke-width="1.3"':'')+'/>';
+ const stU=(x,y,s,h)=>'<rect x="'+(x+3.7*s)+'" y="'+(y-h)+'" width="1.2" height="'+h+'"/>';
+ const stD=(x,y,s,h)=>'<rect x="'+(x-4.6*s)+'" y="'+y+'" width="1.2" height="'+h+'"/>';
+ const bm=(x1,x2,y,n)=>{let o='';for(let k=0;k<n;k++)o+='<rect x="'+x1+'" y="'+(y+k*4)+'" width="'+(x2-x1+1.2)+'" height="2.6"/>';return o};
+ const num=(x,y,t)=>'<text x="'+x+'" y="'+y+'" font-size="9" font-weight="700" font-style="italic" text-anchor="middle" font-family="Georgia,serif">'+t+'</text>';
+ const svg=(w,h,b)=>'<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" fill="currentColor" aria-hidden="true">'+b+'</svg>';
+ const group=(n,beams,gap,label,br)=>{const xs=[...Array(n)].map((_,k)=>8+k*gap),y=30,top=12,w=xs[n-1]+12;let b='';xs.forEach(x=>{b+=hd(x,y,1)+stU(x,y,1,y-top)});
+   if(beams)b+=bm(xs[0]+3.7,xs[n-1]+3.7,top,beams);else b+='<rect x="'+(xs[0]+3.7)+'" y="7" width="0.9" height="3"/><rect x="'+(xs[0]+3.7)+'" y="6.5" width="'+(xs[n-1]-xs[0]+1)+'" height="0.9"/><rect x="'+(xs[n-1]+4.3)+'" y="7" width="0.9" height="3"/>';
+   b+=num((xs[0]+xs[n-1])/2+4,beams?9:9,label);return svg(w,36,b)};
+ IC.t3e=group(3,1,11,'3');IC.t3q=group(3,0,13,'3');IC.t3s=group(3,2,10,'3');IC.t5s=group(5,2,8,'5');IC.t6s=group(6,2,7,'6');
+ /* 꾸밈음: 작은 음표 + 큰 음표 */
+ const g1=(slash)=>{let b=hd(9,26,.6)+stU(9,26,.6,14)+'<path d="M11.9 12 q4 3 3 8" fill="none" stroke="currentColor" stroke-width="1"/>'+(slash?'<rect x="4" y="18" width="12" height="1" transform="rotate(-40 10 18.5)"/>':'')+hd(25,30,1)+stU(25,30,1,20)+'<path d="M8 31 q8 6 15 1" fill="none" stroke="currentColor" stroke-width=".9"/>';return svg(36,36,b)};
+ IC.gs=g1(true);IC.gl=g1(false);
+ IC.g2=svg(40,36,hd(6,27,.6)+stU(6,27,.6,13)+hd(13,24,.6)+stU(13,24,.6,10)+bm(8.6,15.6,14,2)+hd(29,30,1)+stU(29,30,1,20)+'<path d="M5 32 q11 6 21 0" fill="none" stroke="currentColor" stroke-width=".9"/>');
+ IC.gx=svg(36,36,hd(9,26,.6)+stU(9,26,.6,14)+hd(25,30,1)+stU(25,30,1,20)+'<path d="M3 6 L17 20 M17 6 L3 20" stroke="#dc2626" stroke-width="2" fill="none"/>');
+ IC.up=svg(22,22,'<path d="M11 4 L18 15 H4Z"/>');IC.dn=svg(22,22,'<path d="M11 18 L18 7 H4Z"/>');
+ /* 못갖춘마디 */
+ const one=(fill,stem,flag,dot)=>{let b=hd(10,26,1,fill);if(stem)b+=stU(10,26,1,18);if(flag)b+='<path d="M14.9 8 q6 5 3 12 q1-6-3-8z"/>';if(dot)b+='<circle cx="19.5" cy="26" r="1.7"/>';return svg(26,34,b)};
+ IC.p8=one(true,1,1);IC.p16=one(true,1,0);IC.p24=one(true,1,0,1);IC.p32=one(false,1,0);IC.p48=one(false,1,0,1);
+ /* 성부 */
+ IC.v1=svg(34,36,hd(10,22,1)+stU(10,22,1,16)+'<g opacity=".35">'+hd(22,28,1)+stD(22,28,1,16)+'</g>');
+ IC.v2=svg(34,36,'<g opacity=".35">'+hd(10,22,1)+stU(10,22,1,16)+'</g>'+hd(22,28,1)+stD(22,28,1,16));
+}
+const css=document.createElement('style');css.textContent='.icg{display:grid;gap:4px;margin-top:6px}.icg.c5{grid-template-columns:repeat(5,1fr)}.icg.c4{grid-template-columns:repeat(4,1fr)}.icg.c3{grid-template-columns:repeat(3,1fr)}.icg.c2{grid-template-columns:repeat(2,1fr)}.icb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:52px;padding:4px 2px;font-size:10.5px;line-height:1.2;color:#1f2937}.icb small{font-size:10px;color:#64748b;white-space:nowrap}.icb.on{outline:2px solid #2563eb;outline-offset:-2px;background:#eff6ff!important;color:#1d4ed8!important}.icb.on small{color:#1d4ed8!important}.icb.sm{min-height:34px}#tb-more .tg button{padding:2px 6px;min-width:38px}';document.head.append(css);
+const B=(attr,ic,lab,title)=>'<button type="button" class="icb" '+attr+' title="'+title+'">'+IC[ic]+(lab?'<small>'+lab+'</small>':'')+'</button>';
 const tupSec=mkSec('tup','std,rhythm','잇단음표',
- '<div class="grid g3"><button data-tup="3" title="셋잇단음표: 고른 음표 길이 3개를 2개 자리에">셋잇단 3</button><button data-tup="5" title="다섯잇단음표: 5개를 4개 자리에">다섯잇단 5</button><button data-tup="6" title="여섯잇단음표: 6개를 4개 자리에">여섯잇단 6</button></div>'+
- '<div class="pn">입력 모드(N)에서 위쪽 음표 길이(예: 8분음표)를 고르고 누르면 잇단음표 자리가 생겨요. 이어서 음 이름(쉼표는 0)을 치면 차례로 채워져요.<br>만든 잇단음표를 선택하고 음 이름을 치면 처음부터 다시 채워요. 지우려면 선택 후 Delete.</div>',true);
+ '<div class="icg c5">'+B('data-tup="3:8"','t3e','8분','셋잇단 8분음표 (4분음표 한 박)')+B('data-tup="3:16"','t3q','4분','셋잇단 4분음표 (2분음표 길이)')+B('data-tup="3:4"','t3s','16분','셋잇단 16분음표 (8분음표 길이)')+B('data-tup="5:4"','t5s','16분','다섯잇단 16분음표 (4분음표 한 박)')+B('data-tup="6:4"','t6s','16분','여섯잇단 16분음표 (4분음표 한 박)')+'</div>'+
+ '<div class="pn">단축키: 입력 중인 음표 길이에서 <b>Ctrl+3</b> 셋잇단 · <b>Ctrl+5</b> 다섯잇단 · <b>Ctrl+6</b> 여섯잇단. 음표를 선택하고 눌러도 돼요.</div>',true);
 const grSec=mkSec('grace','std','꾸밈음',
- '<div class="grid g2"><button data-gr="short" title="사선이 있는 짧은 앞꾸밈음 (아차카투라)">짧은 꾸밈음 𝆔</button><button data-gr="long" title="사선 없는 긴 앞꾸밈음 (아포자투라)">긴 꾸밈음</button></div>'+
- '<div class="grid g4" style="margin-top:6px"><button data-gr="more" title="꾸밈음을 하나 더 붙여요 (최대 4개)">＋ 한 음</button><button data-gr="up" title="마지막 꾸밈음을 한 음 위로">▲</button><button data-gr="down" title="마지막 꾸밈음을 한 음 아래로">▼</button><button data-gr="clear" title="선택한 음표의 꾸밈음을 모두 지워요">지우기</button></div>'+
- '<div class="pn">음표를 선택한 뒤 누르면 그 음표 앞에 꾸밈음이 붙어요. 처음에는 한 음 위에 생기니 ▲▼로 높이를 맞추세요.</div>',false);
+ '<div class="icg c4">'+B('data-gr="short"','gs','짧은','짧은 꾸밈음 (사선) · 한 번 더 누르면 지워져요')+B('data-gr="long"','gl','긴','긴 꾸밈음 · 한 번 더 누르면 지워져요')+B('data-gr="two"','g2','두 음','꾸밈음 두 음')+B('data-gr="clear"','gx','지우기','꾸밈음 지우기')+'</div>'+
+ '<div class="icg c2">'+B('data-gr="up" ','up','','꾸밈음 한 음 위로').replace('class="icb"','class="icb sm"')+B('data-gr="down"','dn','','꾸밈음 한 음 아래로').replace('class="icb"','class="icb sm"')+'</div>'+
+ '<div class="pn">단축키: 음표를 선택하고 <b>/</b> → 짧은 꾸밈음. 꾸밈음을 누르면 선택되고 <b>↑↓</b>로 높이를 바꿔요.</div>',true);
 if(beamSec){beamSec.after(tupSec);tupSec.after(grSec)}else{pc.append(tupSec,grSec)}
 /* 못갖춘마디: 마디 수 섹션 아래 */
 const measSec=q$('details.psec[data-k="meas"]');
 const pkBox=document.createElement('div');pkBox.id='g-pk';pkBox.style.marginTop='8px';
-const PKS=[[0,'없음'],[8,'♪'],[16,'♩'],[24,'♩.'],[32,'𝅗𝅥'],[48,'𝅗𝅥.']];
-pkBox.innerHTML='<div class="pn" style="margin:0 0 4px">못갖춘마디 (첫 마디에 들어갈 박)</div><div class="grid g3">'+PKS.map(([v,l])=>'<button data-pk="'+v+'" title="'+(v?'첫 마디 길이를 이 음표만큼으로':'못갖춘마디 없음')+'">'+l+'</button>').join('')+'</div>';
+const PKS=[[0,'','없음'],[8,'p8','♪'],[16,'p16','♩'],[24,'p24','♩.'],[32,'p32','2분'],[48,'p48','점2분']];
+pkBox.innerHTML='<div class="pn" style="margin:0 0 2px">못갖춘마디 · 첫 마디 길이</div><div class="icg c3">'+PKS.map(([v,ic,l])=>'<button type="button" class="icb sm" data-pk="'+v+'" title="'+(v?'첫 마디를 이 길이만큼만':'못갖춘마디 없음')+'">'+(ic?IC[ic]:'<span style="font-size:12px">없음</span>')+'</button>').join('')+'</div>';
 if(measSec)measSec.append(pkBox);
 
 /* ---- 잇단음표 ---- */
 const flatIdx=id=>flat(S).findIndex(x=>x.e.id===id);
-function makeTup(n){
+function makeTup(n,tw){
  if(!(S.stype==='std'||S.stype==='rhythm'))return toast('잇단음표는 오선보와 단선보에서 쓸 수 있어요');
- if(dotted)return toast('점음표 말고 기본 길이(예: 8분음표)를 고른 뒤 누르세요');
- const tw=dur,span=n===3?tw*2:tw*4;
- if(!DUR[span]||span>64)return toast('이 음표 길이로는 '+TUPN[n]+'음표를 만들 수 없어요. 더 짧은 길이를 고르세요');
+ const span=n===3?tw*2:tw*4;
+ if(!DUR[span])return toast('이 잇단음표는 만들 수 없어요');
  let cur=inp;
- if(!cur){const r=selIdx();if(!r)return toast('N으로 입력 모드를 켜거나, 잇단음표로 바꿀 자리를 선택하세요');const f=flat(S)[r[0]];cur={m:f.m,t:startOf(S,f.m,f.i)}}
- if(cur.t+span>cap(S,cur.m))return toast('이 마디에 남은 박이 모자라요. 다음 마디에서 만드세요');
+ if(!cur){const r=selIdx();if(r){const f=flat(S)[r[0]];cur={m:f.m,t:startOf(S,f.m,f.i)}}else{inp=clampCur(appendPoint());ensure(S,inp.m);cur=inp}}
+ if(cur.t+span>cap(S,cur.m)){if(inp&&cur.t>=cap(S,cur.m)-0){}return toast('이 마디에 남은 박이 모자라요. 다음 마디에서 만드세요')}
  const wasInp=!!inp;
  act(()=>{const r=place(S,cur,{rest:true,d:span});if(r.placed.length!==1)return;const e=r.placed[0];e.tn=n;e.tq=Array.from({length:n},()=>({rest:true,d:tw}));
   window.__tupFill={id:e.id,k:0};if(wasInp)inp=r.cur;const k=flatIdx(e.id);sel={a:k,b:k}});
- toast(TUPN[n]+'음표 자리를 만들었어요. 음 이름을 차례로 치세요');
+ toast(TUPN[n]+'음표 자리를 만들었어요. 음 이름을 차례로 치세요 (쉼표는 0)');
 }
 function fillTup(spec){
  const f=window.__tupFill;if(!f)return false;
@@ -1881,12 +1908,11 @@ function graceAct(kind){
  if(S.stype!=='std')return toast('꾸밈음은 오선보에서 쓸 수 있어요');
  const es=selEv().filter(x=>!x.e.rest&&x.e.p);if(!es.length)return toast('꾸밈음을 붙일 음표를 먼저 선택하세요');
  act(()=>es.forEach(x=>{const e=x.e;e.gr=e.gr||[];
-  if(kind==='short'||kind==='long'){if(!e.gr.length)e.gr=[fromPos(S,posOf(e.p)+1,x.m)];e.grl=kind==='long'}
-  else if(kind==='more'){if(e.gr.length<4){const base=e.gr.length?e.gr[e.gr.length-1]:e.p;e.gr.push(fromPos(S,posOf(base)+1,x.m))}}
+  if(kind==='short'||kind==='long'){const want=kind==='long';if(e.gr.length===1&&!!e.grl===want){e.gr=[];e.grl=false}else{e.gr=[e.gr[0]||fromPos(S,posOf(e.p)+1,x.m)];e.grl=want}}
+  else if(kind==='two'){e.gr=[fromPos(S,posOf(e.p)+2,x.m),fromPos(S,posOf(e.p)+1,x.m)];e.grl=false}
   else if(kind==='up'||kind==='down'){if(e.gr.length){const g=e.gr[e.gr.length-1];e.gr[e.gr.length-1]=fromPos(S,posOf(g)+(kind==='up'?1:-1),x.m)}}
   else if(kind==='clear'){e.gr=[];e.grl=false}}));
 }
-
 /* ---- 못갖춘마디 ---- */
 function setPk(v){
  if(S.free)return toast('"박자 없음"에서는 못갖춘마디를 쓸 수 없어요');
@@ -1898,9 +1924,9 @@ function setPk(v){
 
 
 /* ---- 성부 (한 보표에 두 성부) ---- */
-const vSec=mkSec('voice','std','성부 (한 보표에 두 성부)',
- '<div class="grid g2"><button data-voice="1" title="위 성부 (기둥 위)  Ctrl+Alt+1">성부 1 · 위</button><button data-voice="2" title="아래 성부 (기둥 아래)  Ctrl+Alt+2">성부 2 · 아래</button></div>'+
- '<div class="pn">성부 2를 고르면 같은 보표에 아래 성부를 따로 입력해요. 입력하지 않는 성부는 회색으로 보이고, 문서에 넣거나 저장할 때는 검은색으로 나와요.<br>가사·셈여림·텍스트는 성부 1에 넣으세요. 성부 2를 고치는 동안에는 성부 1의 가사가 잠시 숨겨져요. 단축키 Ctrl+Alt+1 / Ctrl+Alt+2</div>',true);
+const vSec=mkSec('voice','std','성부',
+ '<div class="icg c2">'+B('data-voice="1"','v1','성부 1 · 위','위 성부 입력 (Ctrl+Alt+1)')+B('data-voice="2"','v2','성부 2 · 아래','아래 성부 입력 (Ctrl+Alt+2)')+'</div>'+
+ '<div class="pn">입력하지 않는 성부는 회색으로 보여요. 가사·셈여림은 성부 1에 넣으세요.</div>',true);
 (measSec||pc.firstElementChild).after(vSec);
 const lists=()=>S.sv?S.sv.filter(q=>q.ty!=='jangdan').map(q=>q.measures):[S.measures];
 function swapAll(){lists().forEach(ms=>ms.forEach(m=>{const a=m.ev||[];m.ev=m.ev2||[];if(a.length)m.ev2=a;else delete m.ev2}))}
@@ -1918,18 +1944,70 @@ if(typeof window.exportViews==='function')window.exportViews=canon(window.export
 const svgB=q$('#svg');if(svgB)svgB.onclick=()=>{const x=exportSVG();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([x.svg],{type:'image/svg+xml'}));a.download='악보.svg';a.click()};
 document.addEventListener('keydown',ev=>{if(/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName))return;if(ev.ctrlKey&&ev.altKey&&(ev.code==='Digit1'||ev.code==='Digit2')){ev.preventDefault();ev.stopImmediatePropagation();setVoice(ev.code==='Digit1'?1:2)}},true);
 
+/* ---- 위쪽 도구 막대: 자주 쓰는 셋잇단·꾸밈음 ---- */
+{const restTb=q$('#rest')&&q$('#rest').closest('.tb');if(restTb){const tb=document.createElement('div');tb.className='tb';tb.id='tb-more';tb.innerHTML='<span class="cap">잇단 · 꾸밈음</span><span class="tg">'+B('data-tup="3:8"','t3e','','셋잇단 8분음표')+B('data-gr="short"','gs','','짧은 꾸밈음 (선택한 음표에)')+'</span>';restTb.after(tb);
+ tb.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;ev.preventDefault();if(b.dataset.tup){const [n,w]=b.dataset.tup.split(':').map(Number);makeTup(n,w)}else if(b.dataset.gr)graceAct(b.dataset.gr)})}}
+
+/* ---- 단축키: Ctrl+3/5/6 잇단음표, / 꾸밈음, 꾸밈음 선택 후 방향키 ---- */
+window.__grSel=null;
+function tupByKey(n){
+ if(!(S.stype==='std'||S.stype==='rhythm'))return toast('잇단음표는 오선보와 단선보에서 쓸 수 있어요');
+ let span,cur,first=null;
+ if(inp){if(dotted)return toast('점음표 말고 기본 길이를 고른 뒤 누르세요');span=dur;cur=inp}
+ else{const es=selEv();if(es.length!==1||es[0].e.tq)return toast('N으로 입력하는 중이거나, 음표 하나를 선택하고 누르세요');const f=es[0];span=f.e.d;cur={m:f.m,t:startOf(S,f.m,f.i)};if(!f.e.rest&&f.e.p)first={p:Object.assign({},f.e.p),ch:(f.e.ch||[]).map(c=>Object.assign({},c))}}
+ const tw=n===3?span/2:span/4;
+ if(!Number.isInteger(tw)||!DUR[tw]||!DUR[span])return toast('이 길이로는 '+TUPN[n]+'음표를 만들 수 없어요');
+ if(cur.t+span>cap(S,cur.m))return toast('이 마디에 남은 박이 모자라요');
+ const wasInp=!!inp;
+ act(()=>{const r=place(S,cur,{rest:true,d:span});if(r.placed.length!==1)return;const e=r.placed[0];e.tn=n;e.tq=Array.from({length:n},()=>({rest:true,d:tw}));
+  if(first&&S.stype==='std'){e.tq[0]={rest:false,d:tw,p:first.p,ch:first.ch}}
+  window.__tupFill={id:e.id,k:first?1:0};if(wasInp)inp=r.cur;const k=flatIdx(e.id);sel={a:k,b:k}});
+ toast(TUPN[n]+'음표 · 음 이름을 차례로 치세요 (쉼표는 0)');
+}
+function slashGrace(){
+ const es=selEv().filter(x=>!x.e.rest&&x.e.p);if(!es.length)return toast('꾸밈음을 붙일 음표를 선택하고 / 를 누르세요');
+ let pick=null;
+ act(()=>es.forEach((x,i)=>{const e=x.e;e.gr=e.gr||[];if(e.gr.length>=4)return;const base=e.gr.length?e.gr[e.gr.length-1]:e.p;e.gr.push(fromPos(S,posOf(base)+1,x.m));if(e.gr.length===1)e.grl=false;if(i===0)pick={id:e.id,k:e.gr.length-1}}));
+ if(pick){window.__grSel=pick;render();syncUI()}
+ toast('꾸밈음을 붙였어요. ↑↓로 높이, Delete로 지우기');
+}
+function grFind(){const g=window.__grSel;if(!g)return null;const k=flatIdx(g.id);if(k<0)return null;const f=flat(S)[k];if(!f.e.gr||!f.e.gr[g.k])return null;return{f,k}}
+function grKey(ev){
+ const hit=grFind();if(!hit){window.__grSel=null;return false}
+ const {f}=hit,e=f.e,g=window.__grSel,key=ev.key;
+ if(key==='ArrowUp'||key==='ArrowDown'){const d=(key==='ArrowUp'?1:-1)*(ev.ctrlKey?7:1);act(()=>{e.gr[g.k]=fromPos(S,posOf(e.gr[g.k])+d,f.m)});return true}
+ if(key==='ArrowLeft'||key==='ArrowRight'){const nk=g.k+(key==='ArrowLeft'?-1:1);if(nk>=0&&nk<e.gr.length){g.k=nk;render();syncUI();return true}window.__grSel=null;render();syncUI();return false}
+ if(key==='Delete'||key==='Backspace'){act(()=>{e.gr.splice(g.k,1);if(!e.gr.length)e.grl=false});window.__grSel=e.gr.length?{id:e.id,k:Math.min(g.k,e.gr.length-1)}:null;render();syncUI();return true}
+ if(key==='Escape'){window.__grSel=null;render();syncUI();return true}
+ if(/^[a-gA-G]$/.test(key)&&!ev.ctrlKey&&!ev.altKey&&!ev.metaKey){const p=pitchNear(S,key.toLowerCase(),posOf(e.gr[g.k]),f.m);act(()=>{e.gr[g.k]=p});return true}
+ if(key==='/'){return false}
+ return false;
+}
+document.addEventListener('keydown',ev=>{
+ if(/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName)||ev.target.isContentEditable)return;
+ if(document.querySelector('dialog[open]'))return;
+ if(ev.ctrlKey&&!ev.altKey&&!ev.metaKey&&/^(Digit|Numpad)[356]$/.test(ev.code)&&(S.stype==='std'||S.stype==='rhythm')){ev.preventDefault();ev.stopImmediatePropagation();tupByKey(+ev.code.slice(-1));return}
+ if((ev.key==='/'||ev.code==='NumpadDivide')&&!ev.ctrlKey&&!ev.altKey&&!ev.metaKey&&S.stype==='std'){ev.preventDefault();ev.stopImmediatePropagation();slashGrace();return}
+ if(window.__grSel&&S.stype==='std'){if(grKey(ev)){ev.preventDefault();ev.stopImmediatePropagation()}}
+},true);
+/* 꾸밈음 클릭으로 고르기 */
+const paper=q$('#paper');
+if(paper)paper.addEventListener('pointerdown',ev=>{let t=ev.target.closest&&ev.target.closest('[data-gn]');if(!t){t=[...paper.querySelectorAll('[data-gn]')].find(g=>{const b=g.getBoundingClientRect();return ev.clientX>=b.left-3&&ev.clientX<=b.right+3&&ev.clientY>=b.top-3&&ev.clientY<=b.bottom+3})||null}if(t){ev.stopImmediatePropagation();ev.preventDefault()}
+ if(t){const [id,k]=t.dataset.gn.split(':').map(Number);window.__grSel={id,k};setTimeout(()=>{const i=flatIdx(id);if(i>=0)sel={a:i,b:i};inp=null;render();syncUI()},0)}
+ else if(window.__grSel){window.__grSel=null}},true);
+
 /* ---- 버튼 연결 ---- */
 pc.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;
- if(b.dataset.tup){ev.preventDefault();makeTup(+b.dataset.tup)}
+ if(b.dataset.tup){ev.preventDefault();const [n,w]=b.dataset.tup.split(':').map(Number);makeTup(n,w)}
  else if(b.dataset.gr){ev.preventDefault();graceAct(b.dataset.gr)}
  else if(b.dataset.pk!==undefined){ev.preventDefault();setPk(+b.dataset.pk)}
  else if(b.dataset.voice){ev.preventDefault();setVoice(+b.dataset.voice)}});
-function sync(){document.querySelectorAll('#g-pk [data-pk]').forEach(b=>b.classList.toggle('on',(+b.dataset.pk)===(S.pk||0)));document.querySelectorAll('[data-voice]').forEach(b=>b.classList.toggle('on',(+b.dataset.voice)===(S.av||1)))}
+function sync(){{const tb=q$('#tb-more');if(tb)tb.hidden=!(S.stype==='std'||S.stype==='rhythm');const gb=tb&&tb.querySelector('[data-gr]');if(gb)gb.hidden=S.stype!=='std'}document.querySelectorAll('#g-pk [data-pk]').forEach(b=>b.classList.toggle('on',(+b.dataset.pk)===(S.pk||0)));document.querySelectorAll('[data-voice]').forEach(b=>b.classList.toggle('on',(+b.dataset.voice)===(S.av||1)))}
 const _syncUI=window.syncUI;window.syncUI=function(){const r=_syncUI.apply(this,arguments);try{sync()}catch(e){}return r};
 /* 선택 정보 표시 */
 const _desc=window.describeHTML;
 if(typeof _desc==='function')window.describeHTML=function(e){if(e&&e.tq){const f=window.__tupFill&&window.__tupFill.id===e.id?' · '+(window.__tupFill.k+1)+'번째 칸 입력 중':'';return TUPN[e.tn]+'음표 · '+e.tq.length+'칸'+f+' · 음 이름으로 채우기'}
- const h=_desc.apply(this,arguments);return e&&e.gr&&e.gr.length?h+' · 꾸밈음 '+e.gr.length+'개':h};
+ const h=_desc.apply(this,arguments);if(e&&window.__grSel&&window.__grSel.id===e.id)return '꾸밈음 '+(window.__grSel.k+1)+'번째 선택 · ↑↓ 높이 · Ctrl+↑↓ 옥타브 · Delete 지우기 · Esc 해제';return e&&e.gr&&e.gr.length?h+' · 꾸밈음 '+e.gr.length+'개':h};
 try{sync()}catch(e){}
 })();
 </script>
