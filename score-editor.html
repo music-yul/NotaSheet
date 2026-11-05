@@ -231,12 +231,14 @@ const posOf=p=>p.o*7+p.s;
 const fromPos=(s,pos,m)=>{const st=((pos%7)+7)%7;return{s:st,o:Math.floor(pos/7),a:keyAlt(keyAt(s,m),NAMES[st])}};
 const pitchNear=(s,l,prev,mi)=>{const st=NAMES.indexOf(l);let best=null;for(let o=1;o<=7;o++){const pos=o*7+st;if(best===null||Math.abs(pos-prev)<Math.abs(best-prev))best=pos}return{s:st,o:Math.floor(best/7),a:keyAlt(keyAt(s,mi),l)}};
 const toRest=e=>{e.rest=true;e.p=null;e.tie=false;e.art='';e.ss=false;e.se=false;e.ly='';e.ch=[];e.tb=[];e.dr=[];e.yl='';e.jg='';e.yo=0;e.sg='';e.jb='';e.bl='';e.bw=0;e.bh=0;e.bt='';e.bm='';e.bg='';e.fg='';e.gr=[];e.grl=false;delete e.tq;delete e.tn};
-function reflow(s){if(s.stype==='jeonggan'&&!s.sv){jNorm(s);return}const evs=flat(s).map(x=>x.e),meta=s.measures.map(q=>({sys:q.sys||'',bb:q.bb||'',eb:q.eb||'',vo:q.vo||'',rm:q.rm||'',tp:q.tp,sb:q.sb,syso:q.syso,syss:q.syss,ro:q.ro})),pre=s.measures.map(q=>({ts:q.ts,ks:q.ks,cl:q.cl})),fx=s.fixed;
+function reflow(s){if(s.stype==='jeonggan'&&!s.sv){jNorm(s);return}const has2=s.measures.some(q=>q.ev2&&q.ev2.length),ev2s=has2?[].concat(...s.measures.map((q,i)=>{const a=(q.ev2||[]).slice(),u=a.reduce((t,e)=>t+e.d,0),c=cap(s,i);return u<c&&c<1e9?a.concat(restsOf(c-u)):a})):[];const evs=flat(s).map(x=>x.e),meta=s.measures.map(q=>({sys:q.sys||'',bb:q.bb||'',eb:q.eb||'',vo:q.vo||'',rm:q.rm||'',tp:q.tp,sb:q.sb,syso:q.syso,syss:q.syss,ro:q.ro})),pre=s.measures.map(q=>({ts:q.ts,ks:q.ks,cl:q.cl})),fx=s.fixed;
  s.fixed=false;s.measures=pre.map(p=>{const q={ev:[]};['ts','ks','cl'].forEach(k=>{if(p[k])q[k]=p[k]});return q});if(!s.measures.length)s.measures=[{ev:[]}];
  let cur={m:0,t:0};for(const e of evs)cur=place(s,cur,e).cur;
  while(s.measures.length>1){const q=s.measures[s.measures.length-1];if(q.ev.length||q.ts||q.ks||q.cl)break;s.measures.pop()}
  meta.forEach((v,i)=>{const q=s.measures[i];if(!q)return;if(v.sys)q.sys=v.sys;if(v.bb)q.bb=v.bb;if(v.eb)q.eb=v.eb;if(v.vo)q.vo=v.vo;if(v.rm)q.rm=v.rm;if(v.tp)q.tp=v.tp;if(v.sb)q.sb=v.sb;if(v.syso)q.syso=v.syso;if(v.syss)q.syss=v.syss;if(v.ro)q.ro=v.ro});
- s.fixed=fx;if(fx){s.nmeas=Math.max(s.nmeas||0,s.measures.length);while(s.measures.length<s.nmeas)s.measures.push({ev:[]})}}
+ s.fixed=fx;if(fx){s.nmeas=Math.max(s.nmeas||0,s.measures.length);while(s.measures.length<s.nmeas)s.measures.push({ev:[]})}
+ if(has2){const sh=Object.create(s);Object.defineProperty(sh,'measures',{value:s.measures.map(q=>{const o={ev:[]};['ts','ks','cl'].forEach(k=>{if(q[k])o[k]=q[k]});return o}),writable:true});Object.defineProperty(sh,'fixed',{value:false,writable:true});let c2={m:0,t:0};for(const e of ev2s)c2=place(sh,c2,e).cur;
+  s.measures.forEach((q,i)=>{const v=sh.measures[i]?sh.measures[i].ev:[];if(v.some(e=>!e.rest||e.tq))q.ev2=v;else delete q.ev2})}}
 function setMeasureCount(s,n){n=Math.max(1,Math.min(200,n));while(s.measures.length>n)s.measures.pop();while(s.measures.length<n)s.measures.push({ev:[]})}
 
 /* ===== 코드로 화음 만들기 =====
@@ -1147,7 +1149,7 @@ function rowsOf(ms0){const ms=ms0||S.measures;
   rows.push([{m:0,from,to:ev.length,w:Math.min(PW,Math.max(PW*.5,nat))}]);return rows}
  const wid=(mm,first,s0,mi)=>{const std=vt==='std',kk=std?Math.abs(KEYN[keyAt(S,mi)]||0):0;let ex=0;
   if(mi>0&&!S.free){const tc=timeAt(S,mi).join()!==timeAt(S,mi-1).join();if(tc)ex+=34;if(!first){if(std&&keyAt(S,mi)!==keyAt(S,mi-1))ex+=14+kk*11+Math.abs(KEYN[keyAt(S,mi-1)]||0)*9;if(std&&clefAt(S,mi)!==clefAt(S,mi-1))ex+=30}}
-  return Math.max(S.fixed?130:80,evN(mm.ev)*34+44+(S.cdg?mm.ev.filter(e=>e.cd).length*24:0))+(first?50+kk*11+(s0?34:0):0)+ex};
+  return Math.max(S.fixed?130:80,Math.max(evN(mm.ev),evN(mm.ev2))*34+44+(S.cdg?mm.ev.filter(e=>e.cd).length*24:0))+(first?50+kk*11+(s0?34:0):0)+ex};
  const rows=[];let row=[],x=0;
  ms.forEach((mm,mi)=>{let w=wid(mm,!row.length,!rows.length,mi);if(row.length&&x+w>PW){rows.push(row);row=[];x=0;w=wid(mm,true,false,mi)}row.push({m:mi,from:0,to:mm.ev.length,w});x+=w});
  if(row.length)rows.push(row);
@@ -1158,7 +1160,7 @@ function rowsOf(ms0){const ms=ms0||S.measures;
 function staffViews(){if(!S.sv||S.sv.length<2)return[S];return S.sv.map((q,k)=>{if(k===S.act)return S;const V=Object.create(S);Object.defineProperty(V,'measures',{value:q.measures});Object.defineProperty(V,'clef',{value:q.clef});Object.defineProperty(V,'__k',{value:k});return V})}
 /* 줄 나누기는 모든 보표 중 음표가 가장 많은 마디를 기준으로 해서 보표가 같은 폭을 가짐 */
 function mergedMeasures(){if(!S.sv||S.sv.length<2)return S.measures;const n=Math.max(...S.sv.map(q=>q.measures.length)),gmin=hasGrid(S)?Math.ceil((S.gb*S.gs*28-24)/34):0,vx=S.sv.filter(q=>q.ty!=='jangdan');
- return Array.from({length:n},(_,i)=>{const base=S.measures[i]||{ev:[]};return Object.assign({},base,{ev:{length:Math.max(gmin,...vx.map(q=>q.measures[i]?evN(q.measures[i].ev):0))}})})}
+ return Array.from({length:n},(_,i)=>{const base=S.measures[i]||{ev:[]};return Object.assign({},base,{ev:{length:Math.max(gmin,...vx.map(q=>q.measures[i]?Math.max(evN(q.measures[i].ev),evN(q.measures[i].ev2)):0))}})})}
 function rowExtra(rows){const out=[0];let acc=0;
  rows.forEach(row=>{let need=0;if(!S.free)row.forEach(r=>{const q=S.measures[r.m];if(!q||r.from!==0)return;const vo=!!q.vo,rm=!!q.rm,tp=!!(q.tp&&(q.tp.t||q.tp.b));if(!(vo||rm||tp))return;need=Math.max(need,32+(vo&&(rm||tp)?42:0)+(rm&&tp?24:0))});
   if(S.cdg&&row.some(r=>{const q=S.measures[r.m];return q&&q.ev.slice(r.from,r.to).some(e=>e.cd)}))need=Math.max(need,S.cdg==='guitar'?84:76);acc+=Math.max(0,need-44);out.push(acc)});return out}
@@ -1175,7 +1177,7 @@ function render0(){
  const rows=rowsOf(mergedMeasures()),ROWY=rowExtra(rows),rd=new VF.Renderer(paper,VF.Renderer.Backends.SVG);rd.resize(PW+30,rows.length*RH+70+ROWY[rows.length]);const ctx=rd.getContext();
  const fl=flat(S),idx={};fl.forEach((x,k)=>idx[x.e.id]=k);const rg=selIdx(),lo=rg?rg[0]:1,hi=rg?rg[1]:0;
  const FLS=VW.map((v,k)=>flat(v).map(x=>{x.k=k;return x})),FL=[].concat(...FLS);
- const VFN={},rowOf={},TUPN=new Map();R=[];EXS=VW.map(()=>({}));NPOS={};SYS={};
+ const VFN={},rowOf={},TUPN=new Map(),VFN2={},rowOf2={};R=[];EXS=VW.map(()=>({}));NPOS={};SYS={};
 rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
   row.forEach((r0,ci)=>{
    const GS=[];
@@ -1204,11 +1206,12 @@ rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
    if(gtsm)tsOv.push(gtsSVG(gtsm.getX()+gtsm.getWidth()/2,st,S.gts));
    if(tsm){const NL=ST==='tab6'?6:4,y0t=st.getYForLine(0),H=st.getYForLine(NL-1)-y0t;tsOv.push(tabTsPaths(tsm.getX(),tsm.getWidth(),y0t,H))}
    if(tabClef){const y0t=st.getYForLine(0),H=st.getYForLine(3)-y0t;tsOv.push(tabLetters(tabClef.getX(),tabClef.getWidth(),y0t,H))}
-   const TPL=[];
-   const notes=!evs.length?[]:evs.map(e=>{const[du,dots]=DUR[e.d];let n;
+   const TPL=[],EV2=(ST==='std'&&!S.free&&mm.ev2&&mm.ev2.some(e=>!e.rest||e.tq))?mm.ev2:null,TWO=!!EV2||(ST==='std'&&S.av===2&&!S.free),SD1=S.av===2?-1:1,SDn=vn=>vn===1?SD1:-SD1,STEM=vn=>TWO?{stem_direction:SDn(vn)}:{auto_stem:true},RK=vn=>{const k0=RKEY[clefAt(V,r.m)]||'b/4';if(!TWO)return k0;const [l,o]=k0.split('/'),p=(+o)*7+NAMES.indexOf(l)+(SDn(vn)>0?2:-2);return NAMES[((p%7)+7)%7]+'/'+Math.floor(p/7)};
+   const mkN=(e,vn)=>{const[du,dots]=DUR[e.d];let n;
     if(e.tq&&(ST==='std'||ST==='rhythm')){const kk0=idx[e.id],selT=kk0>=lo&&kk0<=hi,inner=e.tq.map((q,qi)=>{const[du2,dt2]=DUR[q.d];let m2;
       if(ST==='rhythm')m2=q.rest?new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du2+'r'}):new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du2,stem_direction:1});
-      else{const ks=q.rest?[RKEY[clefAt(V,r.m)]||'b/4']:[q.p].concat(q.ch||[]).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).map(toKey);m2=new VF.StaveNote({clef:clefAt(V,r.m),keys:ks,duration:du2+(q.rest?'r':''),auto_stem:true})}
+      else{const ks=q.rest?[RK(vn)]:[q.p].concat(q.ch||[]).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).map(toKey);m2=new VF.StaveNote(Object.assign({clef:clefAt(V,r.m),keys:ks,duration:du2+(q.rest?'r':'')},STEM(vn)))}
+      if(vn===2&&!window.__plain){const sty={fillStyle:'#8a94a6',strokeStyle:'#8a94a6'};(m2.setGroupStyle||m2.setStyle).call(m2,sty)}
       if(dt2){try{VF.Dot.buildAndAttach([m2],{all:true})}catch(err){}}
       if(selT){const sty={fillStyle:'#2563eb',strokeStyle:'#2563eb'};(m2.setGroupStyle||m2.setStyle).call(m2,sty)}else if(window.__tupFill&&window.__tupFill.id===e.id&&qi>=window.__tupFill.k){const sty={fillStyle:'#94a3b8',strokeStyle:'#94a3b8'};(m2.setGroupStyle||m2.setStyle).call(m2,sty)}
       return m2});
@@ -1220,29 +1223,33 @@ rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
      else{const ids=(e.dr||[]).filter(i=>DRUMS[i]).sort((a,b)=>DRUMS[a].pos-DRUMS[b].pos);n=new VF.StaveNote({clef:'percussion',keys:ids.map(i=>DRUMS[i].key),duration:du,auto_stem:true});
       if(ids.some(i=>DRUMS[i].open))n.addModifier(new VF.Articulation('ao').setPosition(VF.Modifier.Position.ABOVE))}}
     else if(ST==='rhythm'||ST==='janggu'){n=e.rest?new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du+'r'}):new VF.StaveNote({clef:'percussion',keys:['b/4'],duration:du,stem_direction:1});if(ST==='janggu'&&!e.rest)n.setKeyStyle(0,{fillStyle:'transparent',strokeStyle:'transparent'})}
-    else{const keys=e.rest?[RKEY[clefAt(V,r.m)]||'b/4']:pitchesOf(e).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).map(toKey);
-     n=new VF.StaveNote({clef:clefAt(V,r.m),keys,duration:du+(e.rest?'r':''),auto_stem:true})}
+    else{const keys=e.rest?[RK(vn)]:pitchesOf(e).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).map(toKey);
+     n=new VF.StaveNote(Object.assign({clef:clefAt(V,r.m),keys,duration:du+(e.rest?'r':'')},STEM(vn)))}
     if(dots&&!(TABT&&e.rest)){try{VF.Dot.buildAndAttach([n],{all:true})}catch(err){}}
     if(e.art&&!TABT)n.addModifier(new VF.Articulation(e.art).setPosition(VF.Modifier.Position.ABOVE));
     if(ST==='std'&&!e.rest&&e.gr&&e.gr.length){try{const gns=e.gr.map(q=>{const g=new VF.GraceNote({keys:[toKey(q)],duration:e.gr.length>1?'16':'8',slash:!e.grl&&e.gr.length===1,clef:clefAt(V,r.m)});if(q.a!==keyAlt(KY,NAMES[q.s]))g.addModifier(new VF.Accidental(q.a===0?'n':ALT[q.a]),0);return g});const gg=new VF.GraceNoteGroup(gns,true);if(gns.length>1)gg.beamNotes();n.addModifier(gg,0)}catch(err){}}
     if(e.fg&&ST==='std'&&!e.rest){try{const ff=new VF.FretHandFinger(String(e.fg));ff.setPosition(VF.Modifier.Position.ABOVE);n.addModifier(ff,pitchesOf(e).length-1)}catch(err){}}
     if(ST==='std'&&!e.rest){if(S.nc){pitchesOf(e).slice().sort((a,b)=>posOf(a)-posOf(b)||a.a-b.a).forEach((p,ki)=>{const c=NCOL[pcOf(p)];try{n.setKeyStyle(ki,{fillStyle:c,strokeStyle:c})}catch(err){}})}
      if(e.bl){const sty={fillStyle:'#c0392b',strokeStyle:'#c0392b'};(n.setGroupStyle||n.setStyle).call(n,sty)}}
-    const k=idx[e.id];if(k>=lo&&k<=hi){const sty={fillStyle:'#2563eb',strokeStyle:'#2563eb'};(n.setGroupStyle||n.setStyle).call(n,sty)}return n});
-   const vnotes=[].concat(...notes.map(n=>TUPN.get(n)||[n]));
+    if(vn===2){if(!window.__plain){const sty={fillStyle:'#8a94a6',strokeStyle:'#8a94a6'};(n.setGroupStyle||n.setStyle).call(n,sty)}return n}
+    const k=idx[e.id];if(k>=lo&&k<=hi){const sty={fillStyle:'#2563eb',strokeStyle:'#2563eb'};(n.setGroupStyle||n.setStyle).call(n,sty)}return n};
+   const notes=!evs.length?[]:evs.map(e=>mkN(e,1)),notes2=EV2?EV2.map(e=>mkN(e,2)):[];
+   const vnotes=[].concat(...notes.map(n=>TUPN.get(n)||[n])),vnotes2=[].concat(...notes2.map(n=>TUPN.get(n)||[n]));
    const voice=evs.length?new VF.Voice({num_beats:TM[0],beat_value:TM[1]}).setMode(VF.Voice.Mode.SOFT).addTickables(vnotes):null;
-   if(ST==='std'&&voice)VF.Accidental.applyAccidentals([voice],KY);
-   GS.push({k,V,mm,r,evs,st,notes,voice,TM,KY,li,TPL,vnotes})}
+   const voice2=vnotes2.length?new VF.Voice({num_beats:TM[0],beat_value:TM[1]}).setMode(VF.Voice.Mode.SOFT).addTickables(vnotes2):null;
+   if(ST==='std'&&(voice||voice2))VF.Accidental.applyAccidentals([voice,voice2].filter(Boolean),KY);
+   GS.push({k,V,mm,r,evs,st,notes,voice,TM,KY,li,TPL,vnotes,voice2,notes2,vnotes2,EV2,TWO,SD1})}
    if(GS.length>1){const SC=VF.StaveConnector.type,sts=GS.map(g=>g.st),cn=t=>new VF.StaveConnector(sts[0],sts[sts.length-1]).setType(t).setContext(ctx).draw();
     if(ci===0){if(S.brace==='brace')cn(SC.BRACE);else if(S.brace==='bracket')cn(SC.BRACKET);cn(SC.SINGLE_LEFT)}cn(SC.SINGLE_RIGHT)}
    const msx=Math.max(...GS.map(g=>g.st.getNoteStartX()));GS.forEach(g=>g.st.setNoteStartX(msx));
-   {const vs=GS.filter(g=>g.voice).map(g=>g.voice);if(vs.length){const fm=new VF.Formatter();vs.forEach(v=>fm.joinVoices([v]));fm.format(vs,Math.max(30,GS[0].st.getNoteEndX()-msx-14))}}
+   {const vs=[],fm=new VF.Formatter();GS.forEach(g=>{const vv=[g.voice,g.voice2].filter(Boolean);if(vv.length){fm.joinVoices(vv);vs.push(...vv)}});if(vs.length){fm.format(vs,Math.max(30,GS[0].st.getNoteEndX()-msx-14))}}
    if(mixed){const gx1=GS[0].st.getNoteEndX()-8;VW.forEach((V,k)=>{if(V.stype==='jangdan')tsOv.push(jdSeg(V,k,r0.m,msx,gx1,ysys+YO[k]+6))})}
-   GS.forEach(g=>{const{k,V,mm,r,evs,st,notes,voice,TM,KY,li,TPL,vnotes}=g;
+   GS.forEach(g=>{const{k,V,mm,r,evs,st,notes,voice,TM,KY,li,TPL,vnotes,voice2,notes2,vnotes2,EV2,TWO,SD1}=g;
     R.push({k,m:r.m,from:r.from,to:r.to,x:st.getX(),y:st.getY(),w:r.w,y0:st.getYForLine(0),yb:st.getYForLine(LB),sx:st.getNoteStartX(),ex:st.getNoteEndX()-8,ri:li});
     EXS[k][r.m]=EXS[k][r.m]||[];
-    if(!evs.length)return;
-   const bo=Object.assign({},!S.free&&TM[1]===8&&TM[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},TABT?{stem_direction:-1}:{});const hasT=TPL.length>0,beams=(!TABT&&!hasT&&evs.some(e=>e.bm||e.bg))?customBeams(evs,notes,startOf(V,r.m,r.from),TM):VF.Beam.generateBeams(hasT?vnotes:notes,bo);voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());TPL.forEach(t=>{try{t.setContext(ctx).draw()}catch(err){}});
+    if(voice2){const bo2=Object.assign({},!S.free&&TM[1]===8&&TM[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},{stem_direction:-SD1});voice2.draw(ctx,st);VF.Beam.generateBeams(vnotes2,bo2).forEach(b=>b.setContext(ctx).draw());notes2.forEach((n,j)=>{VFN2[EV2[j].id]=n;rowOf2[EV2[j].id]=li})}
+    if(!evs.length){TPL.forEach(t=>{try{t.setContext(ctx).draw()}catch(err){}});return}
+   const bo=Object.assign({},!S.free&&TM[1]===8&&TM[0]%3===0?{groups:[new VF.Fraction(3,8)]}:{},TABT?{stem_direction:-1}:{});const hasT=TPL.length>0;if(TWO)bo.stem_direction=SD1;const beams=(!TABT&&!hasT&&!TWO&&evs.some(e=>e.bm||e.bg))?customBeams(evs,notes,startOf(V,r.m,r.from),TM):VF.Beam.generateBeams(hasT?vnotes:notes,bo);voice.draw(ctx,st);beams.forEach(b=>b.setContext(ctx).draw());TPL.forEach(t=>{try{t.setContext(ctx).draw()}catch(err){}});
    notes.forEach((n,j)=>{const inner=TUPN.get(n);if(!inner)return;inner.forEach(x=>{const el=x.getSVGElement&&x.getSVGElement();if(el){el.dataset.m=r.m;el.dataset.i=r.from+j;el.dataset.k=k;try{const bb=el.getBBox();if(bb&&bb.width>0){const hr=document.createElementNS('http://www.w3.org/2000/svg','rect');hr.setAttribute('x',bb.x-5);hr.setAttribute('y',bb.y-5);hr.setAttribute('width',bb.width+10);hr.setAttribute('height',bb.height+10);hr.setAttribute('fill','transparent');hr.setAttribute('class','hit');el.insertBefore(hr,el.firstChild)}}catch(err){}}})});
    notes.forEach((n,j)=>{const i=r.from+j,e=evs[j],el=n.getSVGElement&&n.getSVGElement();if(el){el.dataset.m=r.m;el.dataset.i=i;el.dataset.k=k;if(el.getBBox){try{const bb=el.getBBox();if(bb&&bb.width>0){const hr=document.createElementNS('http://www.w3.org/2000/svg','rect');hr.setAttribute('x',bb.x-7);hr.setAttribute('y',bb.y-5);hr.setAttribute('width',bb.width+14);hr.setAttribute('height',bb.height+10);hr.setAttribute('fill','transparent');hr.setAttribute('stroke','none');hr.setAttribute('class','hit');el.insertBefore(hr,el.firstChild)}}catch(err){}}}
     EXS[k][r.m][i]=n.getAbsoluteX();VFN[e.id]=n;rowOf[e.id]=li;if(TABT&&e.rest)restOv.push({x:n.getAbsoluteX()+4,y:(st.getYForLine(0)+st.getYForLine(LB))/2,d:e.d});
@@ -1259,6 +1266,10 @@ rows.forEach((row,ri)=>{let x=10;const ysys=ri*RH+50+ROWY[ri+1];
   FLS.forEach(fl=>{const stack=[];fl.forEach(x=>{const n=VFN[x.e.id];
    if(x.e.se&&stack.length){const xa=stack.pop(),a=VFN[xa.e.id];if(a&&n&&a!==n)drawSlur(a,n,rowOf[xa.e.id]===rowOf[x.e.id])}
    if(x.e.ss)stack.push(x)})})}
+ if(ST==='std'){const FL2=VW.map(v=>{const o=[];v.measures.forEach((m,mi)=>(m.ev2||[]).forEach((e,i)=>o.push({m:mi,i,e})));return o});
+  FL2.forEach(fl=>{fl.forEach((x,k)=>{if(!x.e.tie)return;const nx=fl[k+1];if(!nx||nx.e.rest)return;const a=VFN2[x.e.id],b=VFN2[nx.e.id];if(!a||!b)return;const n=Math.min(pitchesOf(x.e).length,pitchesOf(nx.e).length),ix=[...Array(n).keys()],o={first_indices:ix,last_indices:ix};
+   if(rowOf2[x.e.id]===rowOf2[nx.e.id])new VF.StaveTie(Object.assign({first_note:a,last_note:b},o)).setContext(ctx).draw();else{new VF.StaveTie(Object.assign({first_note:a,last_note:null},o)).setContext(ctx).draw();new VF.StaveTie(Object.assign({first_note:null,last_note:b},o)).setContext(ctx).draw()}});
+   const stack=[];fl.forEach(x=>{const n=VFN2[x.e.id];if(x.e.se&&stack.length){const xa=stack.pop(),a=VFN2[xa.e.id];if(a&&n&&a!==n){const o={cps:[{x:0,y:10},{x:0,y:10}],invert:a.getStemDirection()===1};if(rowOf2[xa.e.id]===rowOf2[x.e.id])new VF.Curve(a,n,o).setContext(ctx).draw();else{new VF.Curve(a,null,o).setContext(ctx).draw();new VF.Curve(null,n,o).setContext(ctx).draw()}}}if(x.e.ss)stack.push(x)})})}
  {let h='';const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const cyOf=ri=>{const r0=R.find(q=>q.ri===ri),sy=SYS[ri];return Math.min(r0.y0-16,sy?sy.top-10:1e9)};
   const FF='Malgun Gothic,Noto Sans KR,Arial,sans-serif';
@@ -1559,7 +1570,7 @@ const s0=raw.score,s=newScore();s.stype=['std','tab6','tab4','drum','rhythm','je
  s.clef=CLEFS.includes(s0.clef)?s0.clef:'treble';s.key=Object.prototype.hasOwnProperty.call(KEYN,s0.key)?s0.key:'C';
  const t=Array.isArray(s0.time)?s0.time:[4,4];s.time=[clampI(t[0],1,16,4),[2,4,8].includes(+t[1])?+t[1]:4];s.tsym=['C','C|'].includes(s0.tsym)?s0.tsym:'';
  const ms=Array.isArray(s0.measures)&&s0.measures.length?s0.measures.slice(0,400):[{ev:[]}];
- s.measures=ms.map(m=>({ev:(Array.isArray(m&&m.ev)?m.ev:[]).slice(0,200).map(e=>{
+ const SEV=e=>{
   if(!e||!(DUR[e.d]||(s.stype==='jeonggan'&&Number.isInteger(+e.d)&&+e.d>0&&+e.d<=JU)))return null;const rest=!!e.rest||(s.stype==='std'&&!e.p)||(TB&&!(Array.isArray(e.tb)&&e.tb.length))||(s.stype==='drum'&&!(Array.isArray(e.dr)&&e.dr.some(i=>DRUMS[i])))||((s.stype==='jangdan')&&!JG[e.jg])||(s.stype==='jeonggan'&&!(YCH.includes(e.yl)||JG[e.jg]||e.cn));
   const ne=mk({rest,d:+e.d,tie:!rest&&!!e.tie,tx:String(e.tx||'').slice(0,40),art:ARTS.includes(e.art)?e.art:'',ss:!rest&&!!e.ss,se:!rest&&!!e.se,dyn:DYNS.includes(e.dyn)?e.dyn:'',ly:String(e.ly||'').slice(0,30),cd:String(e.cd||'').slice(0,20)});
   if(!rest&&s.stype==='std'){ne.p={s:clampI(e.p.s,0,6,0),o:clampI(e.p.o,0,8,4),a:clampI(e.p.a,-2,2,0)};ne.ch=(Array.isArray(e.ch)?e.ch:[]).slice(0,7).filter(q=>q&&typeof q==='object').map(q=>({s:clampI(q.s,0,6,0),o:clampI(q.o,0,8,4),a:clampI(q.a,-2,2,0)}));normChord(ne)}
@@ -1568,7 +1579,7 @@ const s0=raw.score,s=newScore();s.stype=['std','tab6','tab4','drum','rhythm','je
   ne.fg=/^[1-5]$/.test(String(e.fg||''))?String(e.fg):'';Object.assign(ne,cleanEvTs(e));ne.bm=e.bm==='off'?'off':'';ne.bg=/^[A-Za-z0-9]{1,8}$/.test(e.bg||'')?e.bg:'';ne.sg=String(e.sg||'').slice(0,12);ne.jb=String(e.jb||'').slice(0,8)}
   if(!rest&&s.stype==='drum')ne.dr=Array.from(new Set(e.dr.filter(i=>DRUMS[i]))).slice(0,6)
   if(s.stype==='jeonggan'){if(!rest&&e.cn&&!YCH.includes(e.yl)&&!JG[e.jg])ne.cn=1;if(rest&&e.bk)ne.bk=1;if(Array.isArray(e.jl)&&e.jl.length>=1&&e.jl.length<=3&&e.jl.every(c=>[1,2,3].includes(+c)))ne.jl=e.jl.map(Number);if(Array.isArray(e.js)){const a=e.js.map(v=>String(v).slice(0,12)).filter(Boolean).slice(0,6);if(a.length)ne.js=a}if(e.sb)ne.sb=1;if(e.ly)ne.ly=String(e.ly).slice(0,30)}
-  ne.rs=(Array.isArray(e.rs)?e.rs:[]).slice(0,3).filter(r=>r&&RGK.includes(r.k)&&/^[A-Za-z0-9]{1,8}$/.test(r.i||'')).map(r=>({i:r.i,k:r.k,t:String(r.t||'').slice(0,12)}));if(!rest&&s.stype==='std'&&Array.isArray(e.gr)){ne.gr=e.gr.slice(0,4).filter(q=>q&&typeof q==='object').map(q=>({s:clampI(q.s,0,6,0),o:clampI(q.o,0,8,4),a:clampI(q.a,-2,2,0)}));ne.grl=!!e.grl}if((s.stype==='std'||s.stype==='rhythm')&&Array.isArray(e.tq)&&[3,5,6].includes(+e.tn)){const tn=+e.tn,occ=tn===3?2:4,tq=e.tq.slice(0,12).filter(q=>q&&DUR[+q.d]).map(q=>{const r0=!!q.rest||(s.stype==='std'&&!(q.p&&typeof q.p==='object')),o={rest:r0,d:+q.d};if(!r0&&s.stype==='std'){o.p={s:clampI(q.p.s,0,6,0),o:clampI(q.p.o,0,8,4),a:clampI(q.p.a,-2,2,0)};o.ch=(Array.isArray(q.ch)?q.ch:[]).slice(0,5).filter(c=>c&&typeof c==='object').map(c=>({s:clampI(c.s,0,6,0),o:clampI(c.o,0,8,4),a:clampI(c.a,-2,2,0)}))}return o});const tot=tq.reduce((a,q)=>a+q.d,0);if(tq.length&&tot*occ===tn*ne.d){toRest(ne);ne.tn=tn;ne.tq=tq}}return ne}).filter(Boolean)}));
+  ne.rs=(Array.isArray(e.rs)?e.rs:[]).slice(0,3).filter(r=>r&&RGK.includes(r.k)&&/^[A-Za-z0-9]{1,8}$/.test(r.i||'')).map(r=>({i:r.i,k:r.k,t:String(r.t||'').slice(0,12)}));if(!rest&&s.stype==='std'&&Array.isArray(e.gr)){ne.gr=e.gr.slice(0,4).filter(q=>q&&typeof q==='object').map(q=>({s:clampI(q.s,0,6,0),o:clampI(q.o,0,8,4),a:clampI(q.a,-2,2,0)}));ne.grl=!!e.grl}if((s.stype==='std'||s.stype==='rhythm')&&Array.isArray(e.tq)&&[3,5,6].includes(+e.tn)){const tn=+e.tn,occ=tn===3?2:4,tq=e.tq.slice(0,12).filter(q=>q&&DUR[+q.d]).map(q=>{const r0=!!q.rest||(s.stype==='std'&&!(q.p&&typeof q.p==='object')),o={rest:r0,d:+q.d};if(!r0&&s.stype==='std'){o.p={s:clampI(q.p.s,0,6,0),o:clampI(q.p.o,0,8,4),a:clampI(q.p.a,-2,2,0)};o.ch=(Array.isArray(q.ch)?q.ch:[]).slice(0,5).filter(c=>c&&typeof c==='object').map(c=>({s:clampI(c.s,0,6,0),o:clampI(c.o,0,8,4),a:clampI(c.a,-2,2,0)}))}return o});const tot=tq.reduce((a,q)=>a+q.d,0);if(tq.length&&tot*occ===tn*ne.d){toRest(ne);ne.tn=tn;ne.tq=tq}}return ne};const sw=+s0.av===2;s.measures=ms.map(m=>{const A=Array.isArray(m&&m.ev)?m.ev:[],B=Array.isArray(m&&m.ev2)?m.ev2:[],v1=sw?B:A,v2=sw?A:B,o={ev:v1.slice(0,200).map(SEV).filter(Boolean)};if(s.stype==='std'&&!s0.free&&v2.length){const w=v2.slice(0,200).map(SEV).filter(Boolean);if(w.some(e=>!e.rest||e.tq))o.ev2=w}return o});s.av=1;
  s.measures.forEach((q,i)=>{const o0=ms[i]||{},sy=String(o0.sys||'').slice(0,40);if(sy)q.sys=sy;{const a=cleanOff(o0.syso),c=cleanTs1(o0.syss);if(a)q.syso=a;if(c)q.syss=c}if(['repeat','double'].includes(o0.bb))q.bb=o0.bb;if(['repeat','double','final'].includes(o0.eb))q.eb=o0.eb;if(/^[1-9](\.|\.,[1-9]\.)$/.test(o0.vo||'')||/^[1-9]\.(,[1-9]\.)*$/.test(o0.vo||''))q.vo=String(o0.vo).slice(0,8);if(RMK.includes(o0.rm))q.rm=o0.rm;{const ro={};if(o0.ro&&typeof o0.ro==='object')['rm','tp','vo'].forEach(kk=>{const c=cleanOff(o0.ro[kk]);if(c)ro[kk]=c});if(Object.keys(ro).length)q.ro=ro}
   if(Array.isArray(o0.sb)&&(s.stype==='jeonggan')){const nn=s.gb*s.gs,a=[...new Set(o0.sb.map(Number).filter(v=>Number.isInteger(v)&&v>=1&&v<=nn))].sort((x,y)=>x-y);if(a.length)q.sb=a}
   if(o0.tp&&typeof o0.tp==='object'){const tt=String(o0.tp.t||'').slice(0,16),bb=clampI(o0.tp.b,0,300,0),bq=(bb&&bb<20)?0:bb,uu=['q','qd','8','h'].includes(o0.tp.u)?o0.tp.u:'q';if(tt||bq)q.tp={t:tt,u:uu,b:bq}}
@@ -1885,12 +1896,35 @@ function setPk(v){
  toast(v?'첫 마디를 못갖춘마디로 바꿨어요':'못갖춘마디를 없앴어요');
 }
 
+
+/* ---- 성부 (한 보표에 두 성부) ---- */
+const vSec=mkSec('voice','std','성부 (한 보표에 두 성부)',
+ '<div class="grid g2"><button data-voice="1" title="위 성부 (기둥 위)  Ctrl+Alt+1">성부 1 · 위</button><button data-voice="2" title="아래 성부 (기둥 아래)  Ctrl+Alt+2">성부 2 · 아래</button></div>'+
+ '<div class="pn">성부 2를 고르면 같은 보표에 아래 성부를 따로 입력해요. 입력하지 않는 성부는 회색으로 보이고, 문서에 넣거나 저장할 때는 검은색으로 나와요.<br>가사·셈여림·텍스트는 성부 1에 넣으세요. 성부 2를 고치는 동안에는 성부 1의 가사가 잠시 숨겨져요. 단축키 Ctrl+Alt+1 / Ctrl+Alt+2</div>',true);
+(measSec||pc.firstElementChild).after(vSec);
+const lists=()=>S.sv?S.sv.filter(q=>q.ty!=='jangdan').map(q=>q.measures):[S.measures];
+function swapAll(){lists().forEach(ms=>ms.forEach(m=>{const a=m.ev||[];m.ev=m.ev2||[];if(a.length)m.ev2=a;else delete m.ev2}))}
+function setVoice(v){
+ if(S.stype!=='std')return toast('성부 나누기는 오선보에서 쓸 수 있어요');
+ if(S.free)return toast('"박자 없음"에서는 성부를 나눌 수 없어요');
+ if((S.av||1)===v)return;
+ act(()=>{swapAll();S.av=v;sel=null;window.__tupFill=null;if(inp)inp={m:inp.m,t:0}});
+ toast(v===2?'성부 2 (아래 성부) 입력 중':'성부 1 (위 성부) 입력 중');
+}
+/* 문서에 넣기·그림 저장은 항상 성부 1 기준, 검은색으로 */
+function canon(fn){return function(){const sw=S.av===2,k=window.__plain;if(sw){swapAll();S.av=1}window.__plain=true;try{return fn.apply(this,arguments)}finally{window.__plain=k;if(sw){swapAll();S.av=2}if(!k){render();syncUI()}}}}
+if(typeof window.exportSVG==='function')window.exportSVG=canon(window.exportSVG);
+if(typeof window.exportViews==='function')window.exportViews=canon(window.exportViews);
+const svgB=q$('#svg');if(svgB)svgB.onclick=()=>{const x=exportSVG();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([x.svg],{type:'image/svg+xml'}));a.download='악보.svg';a.click()};
+document.addEventListener('keydown',ev=>{if(/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName))return;if(ev.ctrlKey&&ev.altKey&&(ev.code==='Digit1'||ev.code==='Digit2')){ev.preventDefault();ev.stopImmediatePropagation();setVoice(ev.code==='Digit1'?1:2)}},true);
+
 /* ---- 버튼 연결 ---- */
 pc.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;
  if(b.dataset.tup){ev.preventDefault();makeTup(+b.dataset.tup)}
  else if(b.dataset.gr){ev.preventDefault();graceAct(b.dataset.gr)}
- else if(b.dataset.pk!==undefined){ev.preventDefault();setPk(+b.dataset.pk)}});
-function sync(){document.querySelectorAll('#g-pk [data-pk]').forEach(b=>b.classList.toggle('on',(+b.dataset.pk)===(S.pk||0)))}
+ else if(b.dataset.pk!==undefined){ev.preventDefault();setPk(+b.dataset.pk)}
+ else if(b.dataset.voice){ev.preventDefault();setVoice(+b.dataset.voice)}});
+function sync(){document.querySelectorAll('#g-pk [data-pk]').forEach(b=>b.classList.toggle('on',(+b.dataset.pk)===(S.pk||0)));document.querySelectorAll('[data-voice]').forEach(b=>b.classList.toggle('on',(+b.dataset.voice)===(S.av||1)))}
 const _syncUI=window.syncUI;window.syncUI=function(){const r=_syncUI.apply(this,arguments);try{sync()}catch(e){}return r};
 /* 선택 정보 표시 */
 const _desc=window.describeHTML;
@@ -1966,7 +2000,7 @@ function noteXML(o){
  let x='<note>'+(o.chord?'<chord/>':'')+o.body+'<duration>'+(o.dur*U)+'</duration>';
  (o.ties||[]).forEach(t=>x+='<tie type="'+t+'"/>');
  if(o.inst)x+='<instrument id="'+o.inst+'"/>';
- x+='<voice>'+o.voice+'</voice><type>'+o.type+'</type>'+(o.dot?'<dot/>':'')+(o.tm||'');
+ x+='<voice>'+o.voice+'</voice><type>'+o.type+'</type>'+(o.dot?'<dot/>':'')+(o.tm||'')+(o.stem?'<stem>'+o.stem+'</stem>':'');
  if(o.head)x+='<notehead>'+o.head+'</notehead>';
  if(o.staff)x+='<staff>'+o.staff+'</staff>';
  if(!o.chord)(o.beams||[]).forEach(b=>x+=b);
@@ -2009,13 +2043,13 @@ function build(){
  parts.forEach((P,pi)=>{
   body+='<part id="'+P.id+'">';
   const ns=P.staves.length;
-  const ties=P.staves.map(()=>new Set());
+  const ties={},SW=S.av===2,V1=m=>((SW?m&&m.ev2:m&&m.ev)||[]),V2=m=>((SW?m&&m.ev:m&&m.ev2)||[]);
   const ranges=P.staves.map(()=>({}));          /* 범위 기호: 마지막 음표 위치 */
-  P.staves.forEach((st,si)=>{const all=[];st.measures.forEach((m,mi)=>(m.ev||[]).forEach((e,ei)=>all.push([mi,ei,e])));const r={};all.forEach(([mi,ei,e])=>(e.rs||[]).forEach(q=>{r[q.i]=r[q.i]||{k:q.k,first:[mi,ei],last:[mi,ei]};r[q.i].last=[mi,ei]}));ranges[si]=r});
+  P.staves.forEach((st,si)=>{const all=[];st.measures.forEach((m,mi)=>V1(m).forEach((e,ei)=>all.push([mi,ei,e])));const r={};all.forEach(([mi,ei,e])=>(e.rs||[]).forEach(q=>{r[q.i]=r[q.i]||{k:q.k,first:[mi,ei],last:[mi,ei]};r[q.i].last=[mi,ei]}));ranges[si]=r});
   let prevTime=null,prevKey=null,prevClef=P.staves.map(()=>null);
   for(let i=0;i<NM;i++){
    const time=free?null:timeOf(G,i,sc.time||[4,4]),key=keyOf(G,i,sc.key||'C');
-   const mevs=P.staves.map(st=>(st.measures[i]&&st.measures[i].ev)||[]);
+   const mevs=P.staves.map(st=>V1(st.measures[i])),mevs2=P.staves.map(st=>st.kind==='std'?V2(st.measures[i]):[]);
    const PK=(!free&&i===0&&sc.pk>0)?sc.pk:0,cap=free?Math.max(1,...mevs.map(ev=>ev.reduce((a,e)=>a+e.d,0))):PK||time[0]*64/time[1];
    body+='<measure number="'+(sc.pk>0&&!free?i:i+1)+'"'+(PK?' implicit="yes"':'')+'>';
    /* 왼쪽 세로줄 · 괄호 시작 */
@@ -2050,7 +2084,8 @@ function build(){
    /* 음표 */
    P.staves.forEach((st,si)=>{
     if(si>0)body+='<backup><duration>'+(cap*U)+'</duration></backup>';
-    const staffN=ns>1?si+1:0,voice=si*4+1,evs=mevs[si],bm=beams(evs,time||[4,4]);let used=0;
+    const staffN=ns>1?si+1:0;
+    const wv=(evs,voice,tk,stem)=>{ties[tk]=ties[tk]||new Set();const bm=beams(evs,time||[4,4]);let used=0;
     evs.forEach((e,ei)=>{
      const dt=DURT[e.d];if(!dt)return;
      /* 앞쪽 표시 */
@@ -2068,8 +2103,8 @@ function build(){
        if(!q.rest&&q.d<16){for(let L=1;L<=3;L++){if(lv(q.d)<L)continue;const pv=qi>0&&!Q[qi-1].rest&&lv(Q[qi-1].d)>=L,nx=qi<Q.length-1&&!Q[qi+1].rest&&lv(Q[qi+1].d)>=L;const v=pv&&nx?'continue':nx?'begin':pv?'end':null;if(v)b.push('<beam number="'+L+'">'+v+'</beam>')}}
        let nt='';if(qi===0)nt+='<tuplet type="start" bracket="'+(brk?'yes':'no')+'"/>';if(qi===Q.length-1)nt+='<tuplet type="stop"/>';
        const bodies=q.rest?['<rest/>']:st.kind==='rhythm'?['<unpitched><display-step>E</display-step><display-octave>4</display-octave></unpitched>']:[q.p].concat(q.ch||[]).map(p=>pitchXML({step:STEPS[p.s],alter:p.a||0,oct:p.o}));
-       bodies.forEach((bd,hi)=>{body+=noteXML({chord:hi>0,body:bd,dur:q.d*occ/tn,voice,type:dq[0],dot:dq[1],tm,inst:st.kind==='rhythm'&&!q.rest?P.id+'-I1':'',staff:staffN,beams:b,notations:hi===0?nt:''})})});
-      ties[si]=new Set();used+=e.d;return}
+       bodies.forEach((bd,hi)=>{body+=noteXML({chord:hi>0,body:bd,dur:q.d*occ/tn,voice,stem:q.rest?'':stem,type:dq[0],dot:dq[1],tm,inst:st.kind==='rhythm'&&!q.rest?P.id+'-I1':'',staff:staffN,beams:b,notations:hi===0?nt:''})})});
+      ties[tk]=new Set();used+=e.d;return}
      /* 음높이 목록 */
      let heads=[];
      if(e.rest)heads=[{body:'<rest/>'}];
@@ -2082,21 +2117,25 @@ function build(){
      const nextTies=new Set();
      heads.forEach((h,hi)=>{
       const T=[];let nt='';
-      if(!isRest&&h.key&&ties[si].has(h.key)){T.push('stop');nt+='<tied type="stop"/>'}
+      if(!isRest&&h.key&&ties[tk].has(h.key)){T.push('stop');nt+='<tied type="stop"/>'}
       if(!isRest&&e.tie&&h.key){T.push('start');nt+='<tied type="start"/>';nextTies.add(h.key)}
       if(hi===0&&!isRest){if(e.ss)nt+='<slur type="start" number="1"/>';if(e.se)nt+='<slur type="stop" number="1"/>';if(ARTX[e.art])nt+=ARTX[e.art]}
       let tech=h.tech||'';if(hi===0&&!isRest&&e.fg)tech=tech?tech.replace('</technical>','<fingering>'+e.fg+'</fingering></technical>'):'<technical><fingering>'+e.fg+'</fingering></technical>';
       nt+=tech;
       let lyr='';if(hi===0&&!isRest&&e.ly){let t=String(e.ly),syl='single';if(/-$/.test(t)){t=t.replace(/-+$/,'');syl='begin'}lyr='<lyric number="1"><syllabic>'+syl+'</syllabic><text>'+X(t)+'</text></lyric>'}
-      body+=noteXML({chord:hi>0,body:h.body,dur:e.d,ties:T,inst:h.inst,voice,type:dt[0],dot:dt[1],head:h.head,staff:staffN,beams:bm[ei],notations:nt,lyric:lyr});
+      body+=noteXML({chord:hi>0,body:h.body,dur:e.d,ties:T,inst:h.inst,voice,stem:isRest?'':stem,type:dt[0],dot:dt[1],head:h.head,staff:staffN,beams:bm[ei],notations:nt,lyric:lyr});
      });
-     ties[si]=nextTies;
+     ties[tk]=nextTies;
      /* 뒤쪽 표시: 범위 기호 끝 */
      (e.rs||[]).forEach(q=>{const R=ranges[si][q.i];if(!R||R.last[0]!==i||R.last[1]!==ei)return;if(q.k==='cresc'||q.k==='dim')body+=dirXML('<direction-type><wedge type="stop" number="1"/></direction-type>','below',staffN)});
      used+=e.d});
     /* 모자란 박은 쉼표로 채움 */
     if(!evs.length&&!free)body+=noteXML(PK?{body:'<rest/>',dur:cap,voice,type:(DURT[cap]||['quarter'])[0],dot:(DURT[cap]||[0,0])[1],staff:staffN}:{body:'<rest measure="yes"/>',dur:cap,voice,type:'whole',staff:staffN});
     else if(used<cap)splitDur(cap-used).forEach(d=>body+=noteXML({body:'<rest/>',dur:d,voice,type:DURT[d][0],dot:DURT[d][1],staff:staffN}));
+    };
+    const two=mevs2[si].some(e=>!e.rest||e.tq);
+    wv(mevs[si],si*4+1,si+'a',two?'up':'');
+    if(two){body+='<backup><duration>'+(cap*U)+'</duration></backup>';wv(mevs2[si],si*4+2,si+'b','down')}
    });
    /* 오른쪽 세로줄 · 괄호 끝 */
    const eb=glob(i,'eb'),vEnd=v&&voAt(i+1)!==v;
