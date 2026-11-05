@@ -2172,3 +2172,267 @@ btn.addEventListener('click',()=>{
 window.NotaMXL={build};
 })();
 </script>
+
+<script>
+/* NotaSheet 악보 편집기: MusicXML 불러오기 (.musicxml · .xml · .mxl)
+   파일 → NotaScore 형식으로 바꾼 뒤 기존 loadScore(검증 포함)로 엶. 바꾸거나 버린 부분은 보고 창으로 알림 */
+(()=>{
+const q$=s=>document.querySelector(s);
+const anchor=q$('#mxl')||q$('#svg');if(!anchor)return;
+const lab=document.createElement('label');lab.className='mi';lab.title='뮤즈스코어 등에서 저장한 MusicXML 악보 열기';
+lab.innerHTML='📥 MusicXML 불러오기<input type="file" id="mxlOpen" accept=".musicxml,.xml,.mxl" hidden>';
+const jopenLab=q$('#jopen')&&q$('#jopen').closest('label');(jopenLab||anchor).after(lab);
+
+const TYPE64={maxima:64,long:64,breve:64,whole:64,half:32,quarter:16,eighth:8,'16th':4,'32nd':2,'64th':1,'128th':1,'256th':1};
+const STEPI={C:0,D:1,E:2,F:3,G:4,A:5,B:6};
+const FIFTHS={0:'C',1:'G',2:'D',3:'A',4:'E',5:'B',6:'F#',7:'C#','-1':'F','-2':'Bb','-3':'Eb','-4':'Ab','-5':'Db','-6':'Gb','-7':'Cb'};
+const ARTI={staccato:'a.',staccatissimo:'a.',accent:'a>',tenuto:'a-','strong-accent':'a^'};
+const DYNS=['ppp','pp','p','mp','mf','f','ff','fff','sfz','fp'];
+const KINDSUF={major:'','minor':'m',augmented:'aug',diminished:'dim',dominant:'7','major-seventh':'maj7','minor-seventh':'m7','diminished-seventh':'dim7','augmented-seventh':'aug7','half-diminished':'m7b5','major-minor':'mMaj7','major-sixth':'6','minor-sixth':'m6','dominant-ninth':'9','major-ninth':'maj9','minor-ninth':'m9','suspended-second':'sus2','suspended-fourth':'sus4',power:'5'};
+const OKSIZE=[64,48,32,24,16,12,8,6,4,3,2,1];
+const kids=(el,n)=>el?[...el.children].filter(c=>c.localName===n):[];
+const kid=(el,n)=>kids(el,n)[0]||null;
+const txt=(el,n)=>{const k=n?kid(el,n):el;return k?k.textContent.trim():''};
+const num=(el,n,d)=>{const v=parseFloat(txt(el,n));return Number.isFinite(v)?v:d};
+const splitD=n=>{const o=[];let r=n;for(const z of OKSIZE)while(r>=z){o.push(z);r-=z}return o};
+
+/* ---------- .mxl (압축) 풀기 ---------- */
+async function inflate(u8){if(typeof DecompressionStream==='undefined')throw new Error('이 브라우저는 압축된 .mxl을 풀 수 없어요. 뮤즈스코어에서 "압축되지 않은 MusicXML(.musicxml)"로 저장해 주세요');
+ const st=new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return new Uint8Array(await new Response(st).arrayBuffer())}
+async function unzip(buf){
+ const dv=new DataView(buf),u8=new Uint8Array(buf);let e=-1;
+ for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65557);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+ if(e<0)throw new Error('압축 파일 형식이 올바르지 않아요');
+ const cnt=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const files={};const dec=new TextDecoder();
+ for(let k=0;k<cnt;k++){if(dv.getUint32(p,true)!==0x02014b50)break;const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),name=dec.decode(u8.subarray(p+46,p+46+nl));
+  files[name]={meth,csz,lo};p+=46+nl+xl+cl}
+ const read=async name=>{const f=files[name];if(!f)return null;const n2=dv.getUint16(f.lo+26,true),x2=dv.getUint16(f.lo+28,true),st=f.lo+30+n2+x2,raw=u8.subarray(st,st+f.csz);return f.meth===0?raw:f.meth===8?await inflate(raw):null};
+ let root=null;const c=await read('META-INF/container.xml');
+ if(c){const d=new DOMParser().parseFromString(new TextDecoder().decode(c),'application/xml');const rf=d.querySelector('rootfile');if(rf)root=rf.getAttribute('full-path')}
+ if(!root)root=Object.keys(files).find(n=>!n.startsWith('META-INF')&&/\.(xml|musicxml)$/i.test(n));
+ const data=root&&await read(root);if(!data)throw new Error('압축 파일 안에서 악보를 찾지 못했어요');return data;
+}
+function decodeText(u8){if(u8[0]===0xff&&u8[1]===0xfe)return new TextDecoder('utf-16le').decode(u8);if(u8[0]===0xfe&&u8[1]===0xff)return new TextDecoder('utf-16be').decode(u8);return new TextDecoder('utf-8').decode(u8)}
+
+/* ---------- 읽기: 파트·보표별로 음표 모으기 ---------- */
+function readScore(doc,R){
+ const root=doc.documentElement;
+ if(root.localName==='score-timewise')throw new Error('마디 순서(timewise) 형식은 아직 열 수 없어요. 뮤즈스코어에서 다시 저장해 주세요');
+ if(root.localName!=='score-partwise')throw new Error('MusicXML 악보 파일이 아니에요');
+ const names={};doc.querySelectorAll('part-list > score-part').forEach(sp=>names[sp.getAttribute('id')]=txt(sp,'part-name')||txt(sp,'part-abbreviation')||'파트');
+ const staves=[];          /* {pid,name,no,kind,lines,measures:[{notes:[],dirs:[],clef}]} */
+ const meas=[];            /* 마디 공통: {ts,ks,cap,bb,eb,vo,rm,tp,sys,implicit,len} */
+ kids(root,'part').forEach((part,pi)=>{
+  const pid=part.getAttribute('id');let div=1,nst=1;const st={};const getSt=no=>st[no]||(st[no]={pid,name:names[pid]||('파트 '+(pi+1)),no,sign:'G',line:2,lines:5,tab:false,measures:[],firstPart:pi===0});
+  let time=[4,4],key=0;
+  kids(part,'measure').forEach((m,mi)=>{
+   const M=meas[mi]||(meas[mi]={});if(pi===0){M.implicit=m.getAttribute('implicit')==='yes'}
+   let pos=0,maxPos=0,lastStart=0;const grace={};
+   const at=(no)=>{const s=getSt(no);const q=s.measures[mi]||(s.measures[mi]={notes:[],dirs:[]});return q};
+   [...m.children].forEach(el=>{const n=el.localName;
+    if(n==='attributes'){if(kid(el,'divisions'))div=num(el,'divisions',div)||1;
+     const ks=kid(el,'key');if(ks&&kid(ks,'fifths')){key=num(ks,'fifths',0);if(pi===0)M.ks=FIFTHS[Math.max(-7,Math.min(7,key))]}
+     const ts=kid(el,'time');if(ts&&kid(ts,'beats')){const b=parseInt(txt(ts,'beats')),bt=parseInt(txt(ts,'beat-type'));if(b>0&&bt>0){time=[b,bt];if(pi===0){M.ts=[b,bt];if(ts.getAttribute('symbol')==='common')M.sym='C';if(ts.getAttribute('symbol')==='cut')M.sym='C|'}}}
+     if(kid(el,'staves'))nst=Math.max(nst,parseInt(txt(el,'staves'))||1);
+     kids(el,'clef').forEach(c=>{const no=parseInt(c.getAttribute('number')||'1');const s=getSt(no);const sign=txt(c,'sign'),line=parseInt(txt(c,'line'))||0,oc=parseInt(txt(c,'clef-octave-change'))||0;const q=at(no);q.clef={sign,line,oc};if(!s.measures.some((x,i)=>i<mi&&x&&x.clef)){s.sign=sign;s.line=line;s.oc=oc}});
+     kids(el,'staff-details').forEach(sd=>{const no=parseInt(sd.getAttribute('number')||'1');const s=getSt(no);if(kid(sd,'staff-lines'))s.lines=parseInt(txt(sd,'staff-lines'))||5;if(kids(sd,'staff-tuning').length)s.tuning=kids(sd,'staff-tuning').map(t=>({line:parseInt(t.getAttribute('line')),step:txt(t,'tuning-step'),alter:num(t,'tuning-alter',0),oct:num(t,'tuning-octave',4)}))});
+     if(pi===0)M.time=time.slice();M.div=div}
+    else if(n==='backup'){pos-=num(el,'duration',0)}
+    else if(n==='forward'){pos+=num(el,'duration',0);maxPos=Math.max(maxPos,pos)}
+    else if(n==='direction'||n==='harmony'||n==='sound'){
+     const no=parseInt(txt(el,'staff'))||1,off=num(el,'offset',0),t64=(pos+off)*16/div;const q=at(no);
+     if(n==='harmony'){const root=kid(el,'root');if(root){const rs=txt(root,'root-step'),ra=num(root,'root-alter',0),k=kid(el,'kind');let suf=k?(k.getAttribute('text')!==null?k.getAttribute('text'):(KINDSUF[txt(k)]!==undefined?KINDSUF[txt(k)]:'')):'';const b=kid(el,'bass');let bs='';if(b)bs='/'+txt(b,'bass-step')+(num(b,'bass-alter',0)>0?'#':num(b,'bass-alter',0)<0?'b':'');q.dirs.push({t:t64,cd:rs+(ra>0?'#':ra<0?'b':'')+suf+bs})}return}
+     if(n==='sound'){const tm=parseFloat(el.getAttribute('tempo'));if(tm&&pi===0&&!M.tp)M.tp={t:'',u:'q',b:Math.round(tm)};return}
+     kids(el,'direction-type').forEach(dt=>[...dt.children].forEach(d=>{const k=d.localName;
+      if(k==='dynamics'){const g=[...d.children].map(x=>x.localName).find(x=>DYNS.includes(x));if(g)q.dirs.push({t:t64,dyn:g})}
+      else if(k==='wedge'){const ty=d.getAttribute('type');q.dirs.push({t:t64,wedge:ty==='crescendo'?'cresc':ty==='diminuendo'?'dim':'stop'})}
+      else if(k==='metronome'){const bu=txt(d,'beat-unit'),dot=!!kid(d,'beat-unit-dot'),pm=parseInt(txt(d,'per-minute'));if(pi===0&&pm){M.tp=Object.assign(M.tp||{t:''},{u:bu==='eighth'?'8':bu==='half'?'h':dot?'qd':'q',b:pm})}}
+      else if(k==='segno'){if(pi===0)M.rm='segno'}
+      else if(k==='coda'){if(pi===0)M.rm='coda'}
+      else if(k==='words'){const w=d.textContent.trim();if(!w)return;const W=w.toLowerCase().replace(/\s+/g,' ');
+       const RM={'d.c.':'dc','da capo':'dc','d.c. al fine':'dcfine','d.c. al coda':'dccoda','d.s.':'ds','d.s. al fine':'dsfine','d.s. al coda':'dscoda','fine':'fine','to coda':'tocoda'};
+       if(RM[W]){if(pi===0)M.rm=RM[W];return}
+       const RG={'cresc.':'crescT','crescendo':'crescT','dim.':'dimT','diminuendo':'dimT','rit.':'rit','ritard.':'rit','ritardando':'rit','rall.':'rall','rallentando':'rall','accel.':'accel','accelerando':'accel','a tempo':'atempo','legato':'legato'};
+       if(RG[W]){q.dirs.push({t:t64,rg:RG[W]});return}
+       const isTempo=(dt.parentElement&&kids(dt.parentElement,'direction-type').some(x=>kid(x,'metronome')))||/^(allegr|andant|adagi|moderat|lent|larg|prest|vivac|grave|tempo)/i.test(w);
+       if(isTempo&&pi===0){M.tp=Object.assign(M.tp||{u:'q',b:0},{t:w.slice(0,16)});return}
+       q.dirs.push({t:t64,tx:w.slice(0,40)})}}));
+    }
+    else if(n==='barline'){if(pi!==0)return;const loc=el.getAttribute('location')||'right',bs=txt(el,'bar-style'),rp=kid(el,'repeat'),en=kid(el,'ending');
+     if(loc==='left'){if(rp&&rp.getAttribute('direction')==='forward')M.bb='repeat';else if(bs==='light-light')M.bb='double'}
+     else{if(rp&&rp.getAttribute('direction')==='backward')M.eb='repeat';else if(bs==='light-light')M.eb='double';else if(bs==='light-heavy')M.eb='final'}
+     if(en&&en.getAttribute('type')==='start'){const nums=(en.getAttribute('number')||'1').split(/[,\s]+/).filter(Boolean).slice(0,3);M.vo=nums.map(x=>x+'.').join(',');M.voStart=true}
+     if(en&&en.getAttribute('type')!=='start')M.voEnd=true}
+    else if(n==='note'){
+     if(kid(el,'cue'))return;
+     const no=parseInt(txt(el,'staff'))||1,q=at(no),s=getSt(no),voice=txt(el,'voice')||'1',isChord=!!kid(el,'chord'),isGrace=!!kid(el,'grace'),dur=num(el,'duration',0);
+     const pitch=kid(el,'pitch'),unp=kid(el,'unpitched'),rest=kid(el,'rest');
+     const P=pitch?{s:STEPI[txt(pitch,'step')]??0,o:num(pitch,'octave',4),a:Math.max(-2,Math.min(2,Math.round(num(pitch,'alter',0))))}:null;
+     if(isGrace){if(P&&!isChord){(grace[no+'|'+voice]=grace[no+'|'+voice]||[]).push({p:P,slash:kid(el,'grace').getAttribute('slash')==='yes'})}return}
+     const start=isChord?lastStart:pos;if(!isChord){lastStart=pos;pos+=dur;maxPos=Math.max(maxPos,pos)}
+     const ty=txt(el,'type'),dots=kids(el,'dot').length;let w=TYPE64[ty]||0;if(w)w=w*(2-Math.pow(.5,dots));
+     const tmEl=kid(el,'time-modification'),tm=tmEl?{a:parseInt(txt(tmEl,'actual-notes')),n:parseInt(txt(tmEl,'normal-notes'))}:null;
+     const nots=kid(el,'notations'),N={};
+     if(nots){kids(nots,'tied').forEach(t=>{if(t.getAttribute('type')==='start')N.tie=1});kids(nots,'slur').forEach(t=>{if(t.getAttribute('type')==='start')N.ss=1;if(t.getAttribute('type')==='stop')N.se=1});
+      kids(nots,'articulations').forEach(a=>[...a.children].forEach(x=>{if(ARTI[x.localName])N.art=ARTI[x.localName]}));if(kid(nots,'fermata'))N.art='a@a';
+      kids(nots,'tuplet').forEach(t=>{if(t.getAttribute('type')==='start')N.tst=1;if(t.getAttribute('type')==='stop')N.tsp=1});
+      kids(nots,'technical').forEach(tc=>{const f=txt(tc,'fingering');if(/^[1-5]$/.test(f))N.fg=f;if(kid(tc,'string')&&kid(tc,'fret'))N.tb={s:parseInt(txt(tc,'string')),f:parseInt(txt(tc,'fret'))}})}
+     kids(el,'tie').forEach(t=>{if(t.getAttribute('type')==='start')N.tie=1});
+     const ly=kid(el,'lyric');let L='';if(ly){L=kids(ly,'text').map(x=>x.textContent).join('').trim();const syl=txt(ly,'syllabic');if(L&&(syl==='begin'||syl==='middle'))L+='-'}
+     const g=grace[no+'|'+voice];delete grace[no+'|'+voice];
+     q.notes.push({t:start*16/div,d:dur*16/div,w,tm,voice,chord:isChord,rest:!!rest&&!P&&!unp,P,unp:unp?{step:txt(unp,'display-step'),oct:num(unp,'display-octave',4),head:txt(el,'notehead')}:null,N,ly:L,gr:g||null,measRest:!!(rest&&rest.getAttribute('measure')==='yes')});
+    }
+   });
+   if(pi===0)M.len=maxPos*16/div;
+  });
+  Object.keys(st).map(Number).sort((a,b)=>a-b).forEach(no=>staves.push(st[no]));
+ });
+ return {staves,meas};
+}
+
+/* ---------- 보표 종류 판정 ---------- */
+function kindOf(s){
+ if(s.sign==='TAB'||s.tab)return s.lines>=6?'tab6':'tab4';
+ if(s.sign==='percussion'){if(s.lines===1)return 'rhythm';return 'drum'}
+ return 'std';
+}
+const CLEFOF=s=>s.sign==='F'?'bass':s.sign==='C'?({1:'soprano',2:'mezzo-soprano',3:'alto',4:'tenor'}[s.line]||'alto'):'treble';
+const DRUMPOS=[['f',4,'k'],['c',5,'s'],['g',5,'hh'],['a',5,'cr'],['f',5,'rd'],['e',5,'t1'],['d',5,'t2'],['a',4,'t3'],['d',4,'ph'],['e',4,'k'],['b',4,'s'],['c',6,'cr'],['b',5,'cr']];
+function drumOf(u){if(!u)return 's';const st=u.step.toLowerCase(),o=u.oct;const hit=DRUMPOS.find(x=>x[0]===st&&x[1]===o);let id=hit?hit[2]:'s';if(id==='hh'&&/circle/.test(u.head||''))id='oh';return id}
+
+/* ---------- 한 보표를 NotaScore 마디로 ---------- */
+function buildStaff(s,meas,R,opt){
+ const kind=opt.kind,vorder=[];s.measures.forEach(q=>q&&q.notes.forEach(n=>{if(!vorder.includes(n.voice))vorder.push(n.voice)}));
+ if(vorder.length>2)R.add('성부가 '+vorder.length+'개인 보표('+s.name+')는 앞의 두 성부만 가져왔어요');
+ const vmap={};vorder.forEach((v,i)=>vmap[v]=kind==='std'?(i<2?i+1:0):(i===0?1:0));
+ const out=[];
+ meas.forEach((M,mi)=>{
+  const q=s.measures[mi]||{notes:[],dirs:[]},cap=M.cap;const mo={ev:[]};
+  if(q.clef&&mi>0&&kind==='std')mo.cl=CLEFOF(q.clef);
+  [1,2].forEach(vn=>{
+   if(vn===2&&kind!=='std')return;
+   const ns=q.notes.filter(n=>vmap[n.voice]===vn).sort((a,b)=>a.t-b.t||(a.chord?1:0)-(b.chord?1:0));
+   /* 화음 묶기 */
+   const groups=[];ns.forEach(n=>{const g=groups[groups.length-1];if(n.chord&&g)g.push(n);else groups.push([n])});
+   const evs=[];let t=0;
+   const pushRest=d=>{splitD(d).forEach(x=>evs.push({rest:true,d:x}))};
+   let i=0;
+   while(i<groups.length){const g=groups[i],h=g[0];
+    if(h.measRest){i++;continue}
+    const gap=Math.round(h.t-t);if(gap>0){pushRest(gap);t+=gap}
+    /* 잇단음표 묶음 */
+    if(h.tm&&h.tm.a&&h.tm.n&&h.tm.a!==h.tm.n){
+     const run=[g];let j=i+1,ws=h.w;
+     const closed=()=>run.some(x=>x[0].N.tsp);
+     while(j<groups.length&&!closed()&&groups[j][0].tm&&groups[j][0].tm.a===h.tm.a&&groups[j][0].tm.n===h.tm.n&&!groups[j][0].N.tst){if(!h.N.tst&&!groups.slice(i,j).some(x=>x[0].N.tst)&&ws===h.tm.a*h.w)break;run.push(groups[j]);ws+=groups[j][0].w;j++}
+     const tn=h.tm.a,occ=h.tm.n,okR=(tn===3&&occ===2)||(tn===5&&occ===4)||(tn===6&&occ===4),span=ws*occ/tn;
+     if(okR&&Number.isInteger(span)&&OKSIZE.includes(span)&&run.every(x=>OKSIZE.includes(x[0].w))&&(kind==='std'||kind==='rhythm')){
+      const tq=run.map(x=>{const a=x[0];if(a.rest||(kind==='std'&&!a.P))return{rest:true,d:a.w};const o={rest:false,d:a.w};if(kind==='std'){o.p=a.P;o.ch=x.slice(1).filter(y=>y.P).map(y=>y.P)}return o});
+      const ev={rest:true,d:span,tn,tq};const f=run[0][0];if(f.ly)ev.ly=f.ly;evs.push(ev);t+=span;
+     }else{R.add('지원하지 않는 잇단음표('+tn+':'+occ+')는 가까운 일반 음표로 바꿨어요',mi);
+      run.forEach(x=>{const d=Math.max(1,Math.round(x[0].d));evs.push(mkEv(x,d,kind,R,mi));t+=d})}
+     i+=run.length;continue}
+    let d=h.d;if(!Number.isInteger(d)){R.add('64분음표보다 잘게 나뉜 길이는 가장 가까운 길이로 맞췄어요',mi);d=Math.max(1,Math.round(d))}
+    if(t+d>cap+.01){R.add('마디 길이를 넘친 음표는 마디 끝에서 잘랐어요',mi);d=Math.max(0,cap-t)}
+    if(d>0){const e=mkEv(g,d,kind,R,mi);const parts=OKSIZE.includes(d)?[d]:splitD(d);
+     parts.forEach((x,k)=>{const c=Object.assign({},e,{d:x});if(k<parts.length-1&&!c.rest)c.tie=true;if(k>0){c.ly='';c.dyn='';c.cd='';c.tx='';c.gr=[];c.ss=false}if(k<parts.length-1)c.se=false;evs.push(c)});t+=d}
+    i++}
+   /* 방향 표시(셈여림·코드·텍스트·점점)를 가장 가까운 음표에 붙이기 */
+   if(vn===1){let wedge=null;const starts=[];let a=0;evs.forEach(e=>{starts.push(a);a+=e.d});
+    const near=tt=>{let k=starts.findIndex(x=>x>=tt-.01);if(k<0)k=evs.length-1;return k};
+    q.dirs.slice().sort((x,y)=>x.t-y.t).forEach(dd=>{if(!evs.length)return;const k=near(dd.t),e=evs[k];
+     if(dd.dyn){const tgt=evs.slice(k).find(x=>!x.rest&&!x.tq)||e;tgt.dyn=dd.dyn}
+     else if(dd.cd)e.cd=dd.cd.slice(0,20);
+     else if(dd.tx)e.tx=((e.tx?e.tx+' ':'')+dd.tx).slice(0,40);
+     else if(dd.rg){const id='r'+Math.random().toString(36).slice(2,6);(e.rs=e.rs||[]).push({i:id,k:dd.rg,t:''})}
+     else if(dd.wedge==='cresc'||dd.wedge==='dim'){wedge={id:'r'+Math.random().toString(36).slice(2,6),k:dd.wedge,from:k}}
+     else if(dd.wedge==='stop'&&wedge){for(let z=wedge.from;z<=Math.max(wedge.from,k);z++){const x=evs[z];if(x&&!x.rest){(x.rs=x.rs||[]);if(x.rs.length<3)x.rs.push({i:wedge.id,k:wedge.k,t:''})}}wedge=null}});
+   }
+   if(vn===1)mo.ev=evs;else if(evs.some(e=>!e.rest||e.tq))mo.ev2=evs;
+  });
+  out.push(mo);
+ });
+ return out;
+}
+function mkEv(g,d,kind,R,mi){
+ const h=g[0];const e={d,rest:false};
+ if(kind==='std'){const ps=g.filter(x=>x.P).map(x=>x.P);if(!ps.length||h.rest){e.rest=true}else{e.p=ps[0];e.ch=ps.slice(1,8);if(ps.length>8)R.add('9음 이상 쌓인 화음은 8음까지만 가져왔어요',mi)}
+  if(h.gr&&!e.rest){e.gr=h.gr.slice(0,4).map(x=>x.p);e.grl=!h.gr.every(x=>x.slash);if(h.gr.length>4)R.add('꾸밈음이 5개 이상이면 4개까지만 가져왔어요',mi)}}
+ else if(kind==='tab6'||kind==='tab4'){const tb=g.filter(x=>x.N.tb).map(x=>x.N.tb);if(!tb.length||h.rest)e.rest=true;else e.tb=tb}
+ else if(kind==='drum'){if(h.rest)e.rest=true;else e.dr=[...new Set(g.map(x=>drumOf(x.unp)))]}
+ else if(kind==='rhythm'){if(h.rest)e.rest=true}
+ if(!e.rest){if(h.N.tie||g.some(x=>x.N.tie))e.tie=true;if(h.N.ss)e.ss=true;if(h.N.se)e.se=true;if(h.N.art)e.art=h.N.art;if(h.N.fg)e.fg=h.N.fg;if(h.ly)e.ly=h.ly.slice(0,30)}
+ return e;
+}
+
+/* ---------- 변환 보고 ---------- */
+function Report(){const items=new Map();return{add(msg,mi){if(!msg)return;if(!items.has(msg))items.set(msg,new Set());if(mi!==undefined)items.get(msg).add(mi+1)},list(){return[...items].map(([m,s])=>{const a=[...s].sort((x,y)=>x-y);return !a.length?m:m+' ('+(a.length>6?a.slice(0,6).join(', ')+' 외 '+(a.length-6)+'곳':a.join(', '))+'마디)'})}}}
+
+function convert(text,pickIdx){
+ const doc=new DOMParser().parseFromString(text,'application/xml');
+ if(doc.getElementsByTagName('parsererror').length)throw new Error('파일을 읽을 수 없어요. MusicXML 파일이 맞는지 확인해 주세요');
+ const R=Report();const {staves,meas}=readScore(doc,R);
+ if(!staves.length||!meas.length)throw new Error('악보에 마디가 없어요');
+ /* 보표 고르기: 최대 4개, 같은 종류끼리 */
+ let sel=pickIdx||staves.map((_,i)=>i);
+ const k0=kindOf(staves[sel[0]]);
+ const kinds=sel.map(i=>kindOf(staves[i]));
+ if(k0==='tab6'||k0==='tab4'||k0==='drum'){if(sel.length>1)R.add(({tab6:'기타 타브',tab4:'우쿨렐레 타브',drum:'드럼'})[k0]+' 악보는 보표 하나만 열 수 있어서 첫 보표만 가져왔어요');sel=[sel[0]]}
+ else{const keep=sel.filter((i,j)=>kinds[j]===k0);if(keep.length<sel.length)R.add('종류가 다른 보표(타브·드럼 등)는 함께 열 수 없어서 뺐어요');sel=keep}
+ if(sel.length>4){R.add('보표는 4개까지만 열 수 있어서 앞의 4개만 가져왔어요');sel=sel.slice(0,4)}
+ /* 마디 공통 정보 정리 */
+ let time=[4,4],key='C';
+ meas.forEach((M,mi)=>{if(M.time)time=M.time;M.cap=time[0]*64/time[1];if(M.ks)key=M.ks;M.keyNow=key;M.timeNow=time.slice()});
+ const first=meas[0],full=first.cap;let pk=0;
+ if(first.len>0&&first.len<full-.01){const L=Math.round(first.len);if(OKSIZE.includes(L)&&L<full){pk=L;first.cap=L}else R.add('못갖춘마디 길이('+L+')를 그대로 쓸 수 없어서 온마디로 열었어요')}
+ /* 마디 수 제한 */
+ if(meas.length>400){R.add('400마디까지만 가져왔어요');meas.length=400}
+ const score={stype:k0,clef:'treble',key:meas[0].ks||'C',time:(meas[0].time||[4,4]).slice(),tsym:meas[0].sym||'',pk,measures:[]};
+ const built=sel.map(i=>({s:staves[i],m:buildStaff(staves[i],meas,R,{kind:k0})}));
+ /* 마디 공통 정보 붙이기 (첫 보표) */
+ const base=built[0].m;let prevT=score.time.join(),prevK=score.key;
+ meas.forEach((M,mi)=>{const q=base[mi];if(!q)return;
+  if(mi>0){if(M.timeNow.join()!==prevT){q.ts=M.timeNow.slice();prevT=M.timeNow.join()}if(M.keyNow!==prevK&&k0==='std'){q.ks=M.keyNow;prevK=M.keyNow}}
+  if(M.bb)q.bb=M.bb;if(M.eb)q.eb=M.eb;if(M.rm)q.rm=M.rm;if(M.tp&&(M.tp.t||M.tp.b))q.tp={t:M.tp.t||'',u:M.tp.u||'q',b:M.tp.b||0}});
+ /* 볼타: 시작 마디부터 끝 마디까지 같은 표시 */
+ let vo='';meas.forEach((M,mi)=>{if(M.voStart)vo=M.vo;if(vo&&base[mi])base[mi].vo=vo;if(M.voEnd)vo=''});
+ /* 다른 보표에도 박자·조표 변경 복사 */
+ built.slice(1).forEach(b=>b.m.forEach((q,mi)=>{const s0=base[mi];if(!s0)return;['ts','ks'].forEach(k=>{if(s0[k])q[k]=s0[k]})}));
+ if(k0==='tab6'||k0==='tab4'){const T=built[0].s.tuning;if(T&&T.length){const std6=['E2','A2','D3','G3','B3','E4'],std4=['G4','C4','E4','A4'];const got=T.sort((a,b)=>a.line-b.line).map(t=>t.step+t.oct);const ok=k0==='tab6'?got.join()===std6.join():got.join()===std4.join();if(!ok)R.add('표준 조율이 아닌 타브예요. 줄·프렛 번호는 그대로 가져왔어요')}}
+ if(built.length===1){score.clef=CLEFOF(built[0].s);score.measures=base}
+ else{score.bty=k0==='rhythm'?'rhythm':'std';score.brace=built.length===2&&built[0].s.pid===built[1].s.pid?'brace':'bracket';score.sv=built.map(b=>({clef:CLEFOF(b.s),measures:b.m}));delete score.measures}
+ return {json:JSON.stringify({app:'NotaScore',v:1,score}),report:R.list(),staves,sel};
+}
+
+/* ---------- 화면 ---------- */
+function dialog(html,buttons){
+ let d=q$('#mxlImpDlg');if(d)d.remove();d=document.createElement('dialog');d.id='mxlImpDlg';
+ d.style.cssText='border:0;border-radius:14px;padding:22px 24px 18px;width:min(460px,92vw);box-shadow:0 20px 60px #1b28403d;font-family:inherit;color:#1f2a3a';
+ d.innerHTML=html+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">'+buttons.map((b,i)=>'<button type="button" data-b="'+i+'" style="border-radius:8px;padding:8px 16px;cursor:pointer;font:inherit;'+(b.pri?'background:#354968;color:#fff;border:0':'background:#fff;color:#28364d;border:1px solid #cfd6e1')+'">'+b.t+'</button>').join('')+'</div>';
+ document.body.append(d);d.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const f=buttons[+b.dataset.b].f;if(f&&f(d)===false)return;d.close();d.remove()});d.addEventListener('cancel',()=>setTimeout(()=>d.remove()));d.showModal();return d;
+}
+const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function finish(text,pick){
+ let r;try{r=convert(text,pick)}catch(err){console.error(err);return dialog('<h3 style="margin:0 0 8px;font-size:17px">악보를 열지 못했어요</h3><div style="font-size:13.5px;line-height:1.6;color:#465366">'+esc(err.message||err)+'</div>',[{t:'확인',pri:1}])}
+ try{loadScore(r.json)}catch(err){console.error(err);return dialog('<h3 style="margin:0 0 8px;font-size:17px">악보를 열지 못했어요</h3><div style="font-size:13.5px;line-height:1.6;color:#465366">변환한 악보를 확인하다 문제가 생겼어요: '+esc(err.message||err)+'</div>',[{t:'확인',pri:1}])}
+ const list=r.report.filter(Boolean);
+ dialog('<h3 style="margin:0 0 8px;font-size:17px">MusicXML 악보를 열었어요</h3><div style="font-size:13.5px;line-height:1.65;color:#465366">'+(list.length?'NotaSheet에 맞게 바꾼 부분이 있어요. 원본과 비교해 확인해 주세요.<ul style="margin:8px 0 0;padding-left:18px">'+list.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'바꾸거나 뺀 부분 없이 그대로 가져왔어요.')+'</div>',[{t:'확인',pri:1}]);
+}
+async function openFile(f){
+ let u8=new Uint8Array(await f.arrayBuffer());
+ try{if(u8[0]===0x50&&u8[1]===0x4b)u8=await unzip(u8.buffer)}catch(err){return dialog('<h3 style="margin:0 0 8px;font-size:17px">악보를 열지 못했어요</h3><div style="font-size:13.5px;color:#465366">'+esc(err.message)+'</div>',[{t:'확인',pri:1}])}
+ const text=decodeText(u8);
+ let info;try{const doc=new DOMParser().parseFromString(text,'application/xml');info=readScore(doc,Report())}catch(err){return finish(text)}
+ const st=info.staves;
+ const go=pick=>{const empty=!S.measures||(S.sv?S.sv.every(q=>q.measures.every(m=>!m.ev.length)):S.measures.every(m=>!m.ev.length));
+  if(!empty&&!confirm('지금 악보가 불러온 악보로 바뀌어요. 계속할까요? (Ctrl+Z로 되돌릴 수 있어요)'))return;
+  let prev=null;try{prev=snap()}catch(e){}finish(text,pick);try{if(prev){hist.push(prev);fut=[]}}catch(e){}};
+ if(st.length<=4)return go(null);
+ /* 보표가 많으면 고르기 */
+ dialog('<h3 style="margin:0 0 6px;font-size:17px">가져올 보표를 고르세요 (최대 4개)</h3><div style="font-size:12.5px;color:#5f6b7d;margin-bottom:10px">악보에 보표가 '+st.length+'개 있어요.</div><div style="display:grid;gap:6px;max-height:50vh;overflow:auto">'+st.map((s,i)=>'<label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" value="'+i+'"'+(i<4?' checked':'')+'> '+esc(s.name)+(s.no>1||st.filter(x=>x.pid===s.pid).length>1?' · '+s.no+'번 보표':'')+'</label>').join('')+'</div>',
+  [{t:'취소'},{t:'불러오기',pri:1,f:d=>{const v=[...d.querySelectorAll('input:checked')].map(x=>+x.value);if(!v.length){toast('보표를 하나 이상 고르세요');return false}if(v.length>4){toast('4개까지 고를 수 있어요');return false}setTimeout(()=>go(v),0)}}]);
+}
+q$('#mxlOpen').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';const mm=q$('#moremenu');if(mm)mm.hidden=true;if(f)openFile(f)});
+window.NotaMXLIn={convert,unzip};
+})();
+</script>

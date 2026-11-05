@@ -2237,7 +2237,7 @@ function renderForms(){
  body.innerHTML='<p class="ng-note"><b>새 문서로 시작</b>은 지금 문서를 이 틀로 바꾸고, <b>본문만 추가</b>는 제목 칸을 빼고 커서 위치에 넣습니다. 회색 안내 글은 글자를 치면 사라지고 인쇄되지 않아요.</p><div class="ng-chips">'+CATS.map(c=>'<button type="button" class="'+(c===cat?'on':'')+'" data-c="'+c+'">'+c+'</button>').join('')+'</div><div class="ng-grid"></div>';
  body.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderForms()});
  const grid=body.querySelector('.ng-grid');
- ALLFORMS.filter(f=>cat==='전체'?f.cat!=='음악 예시':f.cat===cat).forEach(f=>grid.append(card(f)));
+ ALLFORMS.filter(f=>cat==='전체'||f.cat===cat).forEach(f=>grid.append(card(f)));
  requestAnimationFrame(()=>grid.querySelectorAll('.ng-frame').forEach(fitPv));
 }
 function renderMine(){
