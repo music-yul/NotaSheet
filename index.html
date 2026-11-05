@@ -1684,6 +1684,57 @@ const NOTA_LINKS={
 :is(#editor,.ns-pv)[data-ns-title=classic] .ns-titlebar{border:0;border-top:3px solid var(--ac);border-bottom:1px solid var(--ac);padding:12px 2px 10px}
 
 :is(#editor,.ns-pv)[data-ns-title=none] .ns-titlebar{border:0;padding:0 0 6px}
+/* 제목 밑줄: 문서 안의 실제 요소 (눌러서 선택 → Delete, 또는 드래그 삭제에 함께 지워짐) */
+:is(#editor,.ns-pv) .ns-titlebar{margin-bottom:0}
+:is(#editor,.ns-pv)[data-ns-title=rule] .ns-titlebar{border:0;padding-bottom:4px}
+:is(#editor,.ns-pv)[data-ns-title=classic] .ns-titlebar{border-bottom:0}
+:is(#editor,.ns-pv) .ns-title-rule{display:block;height:0;padding-top:6px;border-bottom:2.5px solid var(--ac);margin:0 0 14px;cursor:pointer;user-select:none}
+:is(#editor,.ns-pv)[data-ns-title=classic] .ns-title-rule{border-bottom-width:1px;padding-top:4px}
+:is(#editor,.ns-pv):is([data-ns-title=band],[data-ns-title=tint],[data-ns-title=frame],[data-ns-title=none]) .ns-title-rule{display:none}
+:is(#editor,.ns-pv):is([data-ns-title=band],[data-ns-title=tint],[data-ns-title=frame],[data-ns-title=none]) .ns-titlebar{margin-bottom:14px}
+:is(#editor,.ns-pv) .ns-titlebar[data-rule=off]{margin-bottom:14px}
+#editor .ns-title-rule:hover{outline:1px dashed #8aa0bf;outline-offset:2px}
+#editor .ns-title-rule.ns-sel{outline:2px solid #4b74b8;outline-offset:3px}
+@media print{#editor .ns-title-rule{outline:none!important}}
+
+/* 회색 안내 글: 비어 있을 때만 보이고 인쇄되지 않음 */
+:is(#editor,.ns-pv) [data-ph].ns-empty::before{content:attr(data-ph);float:left;height:0;color:#a3abb8;pointer-events:none;font-weight:400;white-space:nowrap}
+:is(#editor,.ns-pv) .ns-titlebar>h1[data-ph].ns-empty::before{font-weight:inherit;color:#b6bdc8}
+:is(#editor,.ns-pv)[data-ns-title=band] .ns-titlebar>h1[data-ph].ns-empty::before{color:#ffffffa8}
+@media print{#editor [data-ph].ns-empty::before{content:none!important}}
+
+/* 범용 틀 부품 */
+:is(#editor,.ns-pv) table.ns-qt{margin:16px 0 6px;border:0}
+:is(#editor,.ns-pv) table.ns-qt td{border:0!important;height:auto;padding:2px 4px;vertical-align:top;line-height:1.6}
+:is(#editor,.ns-pv) table.ns-qt td.ns-qno{width:32px;padding:0}
+:is(#editor,.ns-pv) .ns-badge{display:inline-block;min-width:22px;height:22px;line-height:22px;border-radius:11px;background:var(--ac);color:#fff;text-align:center;font-weight:700;font-size:10pt;padding:0 4px}
+:is(#editor,.ns-pv) table.ns-qt td.ns-pt{width:64px;text-align:right;color:#6b7482;white-space:nowrap}
+:is(#editor,.ns-pv) table.ns-lay{border:0;margin:10px 0;border-collapse:separate;border-spacing:10px 0}
+:is(#editor,.ns-pv) table.ns-lay>tbody>tr>td{border:1.5px solid var(--line)!important;border-radius:8px;padding:10px 12px;line-height:1.6;vertical-align:top}
+:is(#editor,.ns-pv) table.ns-lay td.ns-soft{background:var(--soft);border-color:transparent!important}
+:is(#editor,.ns-pv) table.ns-lay td.ns-tall{height:420px}
+:is(#editor,.ns-pv) table.ns-lay td.ns-mid{height:200px}
+:is(#editor,.ns-pv) table.ns-lay td.ns-low{height:110px}
+:is(#editor,.ns-pv) .ns-lab{color:var(--ac);font-weight:700;margin:0 0 6px}
+:is(#editor,.ns-pv) table.ns-step{border:0;margin:6px 0}
+:is(#editor,.ns-pv) table.ns-step td{border:0!important;height:auto;vertical-align:top;line-height:1.6;padding:10px 12px}
+:is(#editor,.ns-pv) table.ns-step td.ns-sk{width:74px;background:var(--ac);color:#fff;font-weight:700;text-align:center;vertical-align:middle;border-radius:8px 0 0 8px}
+:is(#editor,.ns-pv) table.ns-step td.ns-sb{background:var(--soft);border-radius:0 8px 8px 0;height:120px}
+:is(#editor,.ns-pv) .ns-arrow{text-align:center;color:var(--ac);margin:0;line-height:1;font-size:12pt}
+:is(#editor,.ns-pv) .ns-cut{border-top:1.5px dashed #9aa3b1;margin:22px 0;text-align:center;color:#9aa3b1;font-size:9pt;line-height:0}
+:is(#editor,.ns-pv) .ns-cut>span{background:#fff;padding:0 8px}
+:is(#editor,.ns-pv) .ns-card-h{font-family:var(--fh);font-weight:var(--fhw);font-size:14pt;color:var(--ac);display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.5px solid var(--ac);padding-bottom:6px;margin:4px 0 10px}
+:is(#editor,.ns-pv) .ns-card-h .ns-id{cursor:default}
+
+/* 범용 틀 보정 */
+:is(#editor,.ns-pv) table.ns-lay{border-spacing:10px;margin:2px -10px;width:calc(100% + 20px)}
+:is(#editor,.ns-pv) table.ns-t.ns-ch td{border:0!important;height:auto;padding:3px 4px;line-height:1.5}
+:is(#editor,.ns-pv) table.ns-t.ns-ch tr:first-child td{background:none;color:inherit;font-weight:400;text-align:left}
+:is(#editor,.ns-pv) table.ns-t.ns-ch td:nth-child(odd){text-align:right;color:var(--ac);font-weight:700}
+:is(#editor,.ns-pv) table.ns-cardt{border-bottom:1.5px solid var(--ac);margin:6px 0 4px;border-collapse:collapse}
+:is(#editor,.ns-pv) table.ns-cardt td.ns-card-title{font-family:var(--fh);font-weight:var(--fhw);font-size:14pt;color:var(--ac);padding:2px 0 6px}
+:is(#editor,.ns-pv) table.ns-cardt td.ns-pt{color:var(--ink);vertical-align:bottom;padding-bottom:6px}
+:is(#editor,.ns-pv) .ns-cardt .ns-u{text-decoration:underline;text-underline-offset:4px;white-space:pre}
 /* 소제목 */
 :is(#editor,.ns-pv)[data-ns-title] h2{font-size:13.5pt;line-height:1.35;margin:22px 0 8px;color:var(--ac);border:0;background:none;padding:0 0 5px;border-bottom:1px solid var(--line);border-radius:0}
 :is(#editor,.ns-pv)[data-ns-title=band] h2{background:var(--soft);border:0;border-left:4px solid var(--ac);padding:6px 10px;color:var(--ink)}
@@ -1909,7 +1960,8 @@ const FMT={
  group:{n:'모둠 · 이름',parts:[['모둠',10],['이름',22]]}
 };
 function idHTML(fmt){const F=FMT[fmt]||FMT.hakbeon;return '<div class="ns-id" contenteditable="false" data-fmt="'+(FMT[fmt]?fmt:'hakbeon')+'" title="눌러서 칸 모양 바꾸기">'+F.parts.map(([k,n,before])=>{const u='<span class="ns-u">'+NB.repeat(n)+'</span>',l='<span class="ns-k">'+k+'</span>';return before?u+l:l+u}).join(' ')+'</div>'}
-function titlebarHTML(title,fmt){return '<div class="ns-titlebar"><h1>'+(title||'활동지 제목')+'</h1>'+idHTML(fmt)+'</div>'}
+const RULE='<div class="ns-title-rule" contenteditable="false" title="눌러서 선택한 뒤 Delete로 지울 수 있어요"></div>';
+function titlebarHTML(title,fmt){return '<div class="ns-titlebar"><h1 data-ph="제목을 입력하세요">'+(title||'<br>')+'</h1>'+idHTML(fmt)+'</div>'+RULE}
 const TB=()=>ed.querySelector(':scope>.ns-titlebar')||ed.querySelector('.ns-titlebar');
 const LEG=/^(학번_*|학년_*반_*번호?_*)?(이름|성명):?_+$/;
 function legacyFmt(t){return /학번/.test(t)?'hakbeon':/학년/.test(t)?'full':'name'}
@@ -1931,6 +1983,7 @@ function migrate(){
 }
 function fix(){
  const all=[...ed.querySelectorAll('.ns-titlebar')];
+ if(!all.length){ed.querySelectorAll('.ns-title-rule').forEach(x=>x.remove());hadRule=false}
  all.slice(1).forEach(t=>{const h=t.querySelector('h1');if(h)t.before(h);t.remove()});
  const t=all[0];if(!t)return;
  if(ed.firstElementChild!==t)ed.prepend(t);
@@ -1943,16 +1996,44 @@ function fix(){
  if(after.length){let ref=t;after.forEach(n=>{if(n.nodeType===3){const p=document.createElement('p');p.append(n);n=p}ref.after(n);ref=n})}
  if(t.firstChild!==h)t.prepend(h);
  if(h.nextSibling!==id)h.after(id);
- if(!t.nextElementSibling){const p=document.createElement('p');p.innerHTML='<br>';t.after(p)}
+ if(!h.hasAttribute('data-ph'))h.setAttribute('data-ph','제목을 입력하세요');
+ /* 제목 밑줄 요소: 하나만, 제목줄 바로 아래 */
+ const rules=[...ed.querySelectorAll('.ns-title-rule')];
+ let rule=rules[0];rules.slice(1).forEach(x=>x.remove());
+ if(!rule&&hadRule&&t.dataset.rule!=='off')t.dataset.rule='off';   /* 사용자가 지운 경우 */
+ if(!rule&&t.dataset.rule!=='off'){const w=document.createElement('template');w.innerHTML=RULE;rule=w.content.firstChild}
+ if(rule){if(t.dataset.rule==='off')delete t.dataset.rule;if(t.nextElementSibling!==rule)t.after(rule);if(rule.getAttribute('contenteditable')!=='false')rule.setAttribute('contenteditable','false');if(rule.firstChild)rule.replaceChildren()}
+ hadRule=!!rule;
+ const last=rule||t;
+ if(!last.nextElementSibling){const p=document.createElement('p');p.innerHTML='<br>';last.after(p)}
+}
+let hadRule=false;
+function markEmpty(root){
+ (root||ed).querySelectorAll('[data-ph]').forEach(el=>{
+  const prev=el.previousElementSibling;
+  if(prev&&prev.tagName===el.tagName&&prev.getAttribute('data-ph')===el.getAttribute('data-ph')&&el.parentElement===prev.parentElement){el.removeAttribute('data-ph');el.classList.remove('ns-empty');return}
+  const empty=!el.textContent.replace(/[\u200b\u00a0]/g,'').trim()&&!el.querySelector('img,svg,table,.music-symbol');
+  el.classList.toggle('ns-empty',empty)});
 }
 let fixQueued=false;
-const queueFix=()=>{if(fixQueued)return;fixQueued=true;requestAnimationFrame(()=>{fixQueued=false;fix()})};
+const queueFix=()=>{if(fixQueued)return;fixQueued=true;requestAnimationFrame(()=>{fixQueued=false;fix();markEmpty()})};
+ed.addEventListener('input',()=>markEmpty());
 new MutationObserver(queueFix).observe(ed,{childList:true,subtree:true});
 function caretIn(sel){const s=getSelection();if(!s.rangeCount)return null;const n=s.anchorNode;const el=n&&(n.nodeType===1?n:n.parentElement);return el&&el.closest(sel)}
 function atStart(block,r){const t=document.createRange();t.selectNodeContents(block);t.setEnd(r.startContainer,r.startOffset);return !t.toString().length&&!t.cloneContents().querySelector('img,svg,table')}
 function atEnd(block,r){const t=document.createRange();t.selectNodeContents(block);t.setStart(r.endContainer,r.endOffset);return !t.toString().length&&!t.cloneContents().querySelector('img,svg,table')}
 function caretTo(node,end){const r=document.createRange();r.selectNodeContents(node);r.collapse(!end);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+let selRule=null;
+function unselRule(){if(selRule){selRule.classList.remove('ns-sel');selRule=null}}
+function dropRule(){const r=ed.querySelector('.ns-title-rule');if(!r)return;const t=TB();r.remove();if(t)t.dataset.rule='off';hadRule=false;selRule=null;save();say('제목 밑줄을 지웠어요. 다시 넣으려면 [디자인] → 제목 모양 → 밑줄')}
+ed.addEventListener('mousedown',e=>{const r=e.target.closest&&e.target.closest('.ns-title-rule');if(r){e.preventDefault();unselRule();selRule=r;r.classList.add('ns-sel');const s=getSelection();s.removeAllRanges()}else unselRule()},true);
+let allSel=false;
 ed.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&(e.key==='a'||e.key==='A')){allSel=true;return}
+ if(allSel&&(e.key==='Delete'||e.key==='Backspace')){const s=getSelection();if(s.rangeCount&&!s.isCollapsed&&s.toString().length>=ed.innerText.replace(/\s/g,'').length*0){const r=s.getRangeAt(0);const all=document.createRange();all.selectNodeContents(ed);if(r.compareBoundaryPoints(Range.START_TO_START,all)<=0&&r.compareBoundaryPoints(Range.END_TO_END,all)>=0||(r.toString().replace(/\s/g,'')===ed.innerText.replace(/\s/g,''))){e.preventDefault();allSel=false;ed.innerHTML='<p><br></p>';hadRule=false;caretTo(ed.firstChild,false);save();return}}}
+ if(!['Control','Meta','Shift'].includes(e.key))allSel=false;
+ if(selRule&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();dropRule();return}
+ if(selRule&&e.key==='Escape'){unselRule();return}
  const s=getSelection();if(!s.rangeCount)return;const r=s.getRangeAt(0);
  const h=caretIn('.ns-titlebar>h1');
  if(h&&e.key==='Enter'&&!e.isComposing){
@@ -1964,6 +2045,7 @@ ed.addEventListener('keydown',e=>{
  if(h&&e.key==='Delete'&&r.collapsed&&atEnd(h,r)){e.preventDefault();return}
  if(e.key==='Backspace'&&r.collapsed){
   const n=r.startContainer,el=n.nodeType===1?n:n.parentElement,blk=el&&el.closest('#editor>*');
+  if(blk&&blk.previousElementSibling&&blk.previousElementSibling.classList.contains('ns-title-rule')&&atStart(blk,r)){e.preventDefault();dropRule();return}
   if(blk&&blk.previousElementSibling&&blk.previousElementSibling.classList.contains('ns-titlebar')&&atStart(blk,r)){
    e.preventDefault();
    if(!blk.textContent.trim()&&!blk.querySelector('img,svg,table')&&blk.nextElementSibling){blk.remove();caretTo(blk.previousElementSibling||TB().querySelector('h1'),true);save()}
@@ -1981,19 +2063,19 @@ function moveRangeOutOfTitle(){
 }
 /* 제목 안에 커서가 있을 때 표·소제목·그림 같은 덩어리를 넣으면 제목 아래로 넣기 */
 try{const orig=window.insert;if(typeof orig==='function'&&!orig.nsV2){const w=function(html){if(/<(p|div|h[1-6]|table|ul|ol|img|hr)[\s>]/i.test(String(html||'')))moveRangeOutOfTitle();return orig.apply(this,arguments)};w.nsV2=1;window.insert=w}}catch(e){}
+document.addEventListener('keydown',e=>{if(selRule&&!ed.contains(document.activeElement)&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();dropRule()}});
 /* 학번·이름 칸 설정 창 */
 function idDialog(){
  const t=TB();const cur=t?t.querySelector('.ns-id')?.dataset.fmt||'hakbeon':null;
  let d=$('#nsIdDlg');if(d)d.remove();
  d=document.createElement('dialog');d.id='nsIdDlg';d.className='ns-dlg';
- d.innerHTML='<div class="nd-head"><div><h2>학번·이름 칸</h2><p>제목 오른쪽 끝에 고정됩니다. 모양을 고르거나 제목 밑줄을 끌 수 있어요.</p></div><button class="nd-x" type="button" aria-label="닫기">×</button></div><div class="id-list">'+Object.entries(FMT).map(([k,v])=>'<button type="button" data-f="'+k+'" class="'+(k===cur?'on':'')+'">'+v.n+'<span>'+v.parts.map(([a,n,b])=>b?'__'+a:a+' ____').join(' ')+'</span></button>').join('')+'</div><div class="id-foot"><span style="display:flex;gap:6px">'+(t?'<button type="button" class="nd-btn" data-act="off">칸 없애기</button>':'')+'<button type="button" class="nd-btn" data-act="rule">'+(resolve(ed.dataset.design).t==='none'?'제목 밑줄 넣기':'제목 밑줄 없애기')+'</button></span><button type="button" class="nd-btn" data-act="close">닫기</button></div>';
+ d.innerHTML='<div class="nd-head"><div><h2>학번·이름 칸</h2><p>제목 오른쪽 끝에 고정됩니다. 모양을 고르세요.</p></div><button class="nd-x" type="button" aria-label="닫기">×</button></div><div class="id-list">'+Object.entries(FMT).map(([k,v])=>'<button type="button" data-f="'+k+'" class="'+(k===cur?'on':'')+'">'+v.n+'<span>'+v.parts.map(([a,n,b])=>b?'__'+a:a+' ____').join(' ')+'</span></button>').join('')+'</div><div class="id-foot">'+(t?'<button type="button" class="nd-btn" data-act="off">칸 없애기</button>':'<span></span>')+'<button type="button" class="nd-btn" data-act="close">닫기</button></div>';
  document.body.append(d);
  const close=()=>{d.close();d.remove()};
  d.querySelector('.nd-x').onclick=close;d.querySelector('[data-act=close]').onclick=close;
  d.addEventListener('cancel',()=>setTimeout(()=>d.remove()));
- const off=d.querySelector('[data-act=off]');if(off)off.onclick=()=>{const tb=TB();if(tb){const h=tb.querySelector('h1');tb.replaceWith(h)}save();close();say('학번·이름 칸을 없앴어요.')};
+ const off=d.querySelector('[data-act=off]');if(off)off.onclick=()=>{const tb=TB();if(tb){const h=tb.querySelector('h1');ed.querySelectorAll('.ns-title-rule').forEach(x=>x.remove());hadRule=false;tb.replaceWith(h)}save();close();say('학번·이름 칸을 없앴어요.')};
  d.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{setId(b.dataset.f);close()});
- d.querySelector('[data-act=rule]').onclick=()=>{const r=resolve(ed.dataset.design),off=r.t!=='none';ed.dataset.design=designKey({...r,t:off?'none':'rule'});applyDesign();save();close();say(off?'제목 밑줄과 소제목 밑줄을 없앴어요.':'제목 밑줄을 다시 넣었어요.')};
  d.showModal();
 }
 function setId(fmt){
@@ -2021,9 +2103,14 @@ const PH=(t,sz)=>'<div class="ns-box ns-ph" data-h="'+(sz||'m')+'"><p class="ns-
 const GOAL=t=>'<table class="ns-goal"><tbody><tr><td class="ns-gk">학습 목표</td><td>'+t+'</td></tr></tbody></table>';
 const TIP=(k,t)=>'<p class="ns-tip"><b>'+k+'</b>　'+t+'</p>';
 const BANK=a=>'<p class="ns-bank"><b>보기</b>'+a.join('　·　')+'</p>';
-function T(head,rows,w){
- const cell=(c,i,isHead)=>{let cls='',txt=c;if(isHead&&typeof c==='string'&&c.startsWith('^'))txt=c.slice(1);if(!isHead&&typeof c==='string'&&c.startsWith('!')){cls=' class="ns-rh"';txt=c.slice(1)}else if(!isHead&&typeof c==='string'&&c.startsWith('^')){cls=' class="ns-c"';txt=c.slice(1)}const st=isHead&&w&&w[i]?' style="width:'+w[i]+'%"':'';return '<td'+cls+st+'>'+(txt===''?'<br>':txt)+'</td>'};
- return '<table class="ns-t"><tbody><tr>'+head.map((c,i)=>cell(c,i,1)).join('')+'</tr>'+rows.map(r=>'<tr>'+r.map((c,i)=>cell(c,i,0)).join('')+'</tr>').join('')+'</tbody></table>';
+function T(head,rows,w,cls){
+ const cell=(c,i,isHead)=>{let k='',txt=String(c),ph=null;
+  if(txt.startsWith('^')){if(!isHead)k='ns-c';txt=txt.slice(1)}
+  if(txt.startsWith('!')){if(!isHead)k='ns-rh';txt=txt.slice(1)}
+  if(txt.startsWith('?')){ph=txt.slice(1)||' ';txt=''}
+  const st=isHead&&w&&w[i]?' style="width:'+w[i]+'%"':'';
+  return '<td'+(k?' class="'+k+'"':'')+(ph?' data-ph="'+ph+'"':'')+st+'>'+(txt===''?'<br>':txt)+'</td>'};
+ return '<table class="ns-t'+(cls?' '+cls:'')+'"><tbody><tr>'+head.map((c,i)=>cell(c,i,1)).join('')+'</tr>'+rows.map(r=>'<tr>'+r.map((c,i)=>cell(c,i,0)).join('')+'</tr>').join('')+'</tbody></table>';
 }
 const E2=['',''],E3=['','',''],E4=['','','',''];
 const FORMS=[
@@ -2054,12 +2141,62 @@ const FORMS=[
  {id:'rubric',cat:'평가',n:'자기·동료 평가표',d:'평가 요소별 3단계 기준과 체크 칸. 수행평가 안내문으로도 사용',
   b:GOAL('평가 기준을 이해하고 자신과 동료의 활동을 점검할 수 있다.')+T(['평가 요소','잘함','보통','노력 필요','^체크'],[['!요소 1','','','',''],['!요소 2','','','',''],['!요소 3','','','','']],[18,24,24,22,12])+H('근거 쓰기')+P('체크한 수준을 고른 이유를 활동 장면을 들어 적어 보세요.')+L(3)+H('동료에게 한마디')+T(['친구 이름','잘한 점','제안'],[E3,E3],[18,41,41])}
 ];
-FORMS.forEach(f=>{f.html=titlebarHTML(f.n,'hakbeon')+f.b});
-const BLANK=()=>titlebarHTML('활동지 제목','hakbeon')+'<p><br></p>';
+FORMS.forEach(f=>{f.html=titlebarHTML(f.n,'hakbeon')+f.b;f.cat='음악 예시'});
+/* ---- 범용 틀 12종 (내용 없이 배치만, 회색 안내 글 포함) ---- */
+const PP=(ph,cls)=>'<p class="ns-p'+(cls?' '+cls:'')+'" data-ph="'+ph+'"><br></p>';
+const LAB=(t,ph)=>t?'<p class="ns-lab">'+t+'</p>':'<p class="ns-lab" data-ph="'+(ph||'제목')+'"><br></p>';
+const GOALP=()=>'<table class="ns-goal"><tbody><tr><td class="ns-gk">학습 목표</td><td data-ph="이번 시간의 학습 목표를 입력하세요"><br></td></tr></tbody></table>';
+const Q=(n,ph,pt)=>'<table class="ns-qt"><tbody><tr><td class="ns-qno"><span class="ns-badge">'+n+'</span></td><td data-ph="'+(ph||'문항을 입력하세요')+'"><br></td>'+(pt?'<td class="ns-pt">(　　점)</td>':'')+'</tr></tbody></table>';
+const LAY=(rows,sp)=>'<table class="ns-lay"><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td'+(c.cls?' class="'+c.cls+'"':'')+(c.w?' style="width:'+c.w+'%"':'')+(c.span?' colspan="'+c.span+'"':'')+'>'+c.h+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+const STEP=(n)=>'<table class="ns-step"><tbody><tr><td class="ns-sk">STEP '+n+'</td><td class="ns-sb">'+PP('이 단계에서 할 일을 입력하세요')+'</td></tr></tbody></table>';
+const ARROW='<p class="ns-arrow">▼</p>';
+function cardHalf(){
+ const id='<span class="ns-k">학번</span><span class="ns-u">'+NB.repeat(14)+'</span> <span class="ns-k">이름</span><span class="ns-u">'+NB.repeat(22)+'</span>';
+ return '<table class="ns-qt ns-cardt"><tbody><tr><td data-ph="카드 제목을 입력하세요" class="ns-card-title"><br></td><td class="ns-pt" style="width:auto">'+id+'</td></tr></tbody></table>'+
+  Q(1,'질문을 입력하세요')+BOX('s','<p class="ns-p"><br></p>')+Q(2,'질문을 입력하세요')+BOX('s','<p class="ns-p"><br></p>');
+}
+const GENERAL=[
+ {id:'g-basic',cat:'수업',n:'기본 학습지',d:'학습 목표와 번호 문항 3개, 답 쓰는 줄과 상자',
+  b:GOALP()+Q(1)+L(3)+Q(2)+L(3)+Q(3)+BOX('m')},
+ {id:'g-twocol',cat:'수업',n:'2단 구성',d:'왼쪽에 자료·개념, 오른쪽에 활동. 자료를 보며 바로 답할 때',
+  b:GOALP()+LAY([[{cls:'ns-soft ns-tall',w:44,h:LAB('자료')+PP('읽기 자료, 그림, 악보 등을 넣으세요')},{h:LAB('활동')+Q(1)+L(3)+Q(2)+L(3)+Q(3)+L(3)}]])},
+ {id:'g-cornell',cat:'정리',n:'코넬 노트',d:'핵심어 · 필기 · 요약 3구역. 설명 위주 차시의 필기용',
+  b:GOALP()+LAY([[{cls:'ns-soft ns-tall',w:28,h:LAB('핵심어·질문')+PP('핵심어나 질문')},{cls:'ns-tall',h:LAB('필기')+PP('수업 내용을 적는 칸')}],[{cls:'ns-low',span:2,h:LAB('요약')+PP('배운 내용을 세 문장 이내로 요약하세요')}]])},
+ {id:'g-concept',cat:'정리',n:'개념 정리 + 확인 문제',d:'위에 정리 상자, 아래에 빈칸·OX·연결·서술 문제',
+  b:GOALP()+BOX('m',LAB('개념 정리')+PP('핵심 개념을 정리해 넣으세요'))+'<h2>확인 문제</h2>'+Q(1,'빈칸 문제: 빈칸은 (　　　　)로 표시하세요')+
+   Q(2,'O, X로 답하세요')+T(['문장','^O','^X'],[['?문장 1','',''],['?문장 2','',''],['?문장 3','','']],[76,12,12])+
+   Q(3,'서로 관계있는 것끼리 선으로 이으세요')+T(['?왼쪽 항목','^','?오른쪽 항목'],[['?','^·　　　·','?'],['?','^·　　　·','?'],['?','^·　　　·','?']],[38,24,38])+
+   Q(4,'서술형 문항을 입력하세요')+L(3)},
+ {id:'g-steps',cat:'활동',n:'단계형 (STEP 1·2·3)',d:'순서가 있는 활동을 단계별 구역으로',
+  b:GOALP()+STEP(1)+ARROW+STEP(2)+ARROW+STEP(3)+'<h2>돌아보기</h2>'+L(3)},
+ {id:'g-cards',cat:'활동',n:'4칸 카드형',d:'2×2 상자. 아이디어 4개, 장면 4개, 관점 4개 등',
+  b:GOALP()+PP('활동 안내를 입력하세요')+LAY([[{cls:'ns-mid',w:50,h:LAB('','칸 제목')+PP('내용')},{cls:'ns-mid',h:LAB('','칸 제목')+PP('내용')}],[{cls:'ns-mid',h:LAB('','칸 제목')+PP('내용')},{cls:'ns-mid',h:LAB('','칸 제목')+PP('내용')}]])+'<h2>정리</h2>'+L(2)},
+ {id:'g-compare',cat:'정리',n:'2열 비교',d:'가운데 비교 기준, 양쪽에 A와 B. 공통점·차이점 정리',
+  b:GOALP()+T(['?비교 대상 A','비교 기준','?비교 대상 B'],[['?','!?기준 1','?'],['?','!?기준 2','?'],['?','!?기준 3','?'],['?','!?기준 4','?']],[40,20,40])+BOX('s',LAB('공통점')+'<p class="ns-p"><br></p>')+BOX('s',LAB('차이점')+'<p class="ns-p"><br></p>')},
+ {id:'g-kwl',cat:'수업',n:'생각 열기·닫기',d:'알고 있는 것 · 궁금한 것 · 새로 알게 된 것. 단원 도입과 마무리',
+  b:GOALP()+LAY([[{cls:'ns-tall',w:33,h:LAB('알고 있는 것')+PP('수업 전에 적기')},{cls:'ns-tall',w:33,h:LAB('궁금한 것')+PP('수업 전에 적기')},{cls:'ns-tall',h:LAB('새로 알게 된 것')+PP('수업 후에 적기')}]])+Q(1,'오늘 배운 내용을 한 문장으로 정리해 보세요')+L(2)},
+ {id:'g-exam',cat:'평가',n:'평가지',d:'시험 정보와 점수 칸, 배점 있는 객관식·서술형 문항',
+  b:T(['과목','단원','시간','점수'],[['?과목','?단원','^　　분','^　　/ 100']],[25,35,18,22])+
+   Q(1,'객관식 문항을 입력하세요',1)+T(['^①','?보기','^②','?보기'],[['^③','?보기','^④','?보기']],[6,44,6,44],'ns-ch')+
+   Q(2,'객관식 문항을 입력하세요',1)+T(['^①','?보기','^②','?보기'],[['^③','?보기','^④','?보기']],[6,44,6,44],'ns-ch')+
+   Q(3,'서술형 문항을 입력하세요',1)+L(4)},
+ {id:'g-half',cat:'활동',n:'반쪽 카드 ×2',d:'한 장에 같은 카드 2장, 가운데 자르는 선. 출구 카드·짧은 쪽지',noTB:1,
+  b:cardHalf()+'<p class="ns-cut"><span>✂ 자르는 선</span></p>'+cardHalf()},
+ {id:'g-group',cat:'활동',n:'모둠 기록지',d:'역할표, 차시별 진행 기록, 나의 기여 성찰',
+  b:GOALP()+T(['모둠 이름','주제'],[['?','?']],[30,70])+'<h2>역할 나누기</h2>'+T(['이름','역할','맡은 일'],[['?','?','?'],['?','?','?'],['?','?','?'],['?','?','?']],[20,22,58])+
+   '<h2>차시별 기록</h2>'+T(['차시','오늘 한 일','다음에 할 일','^확인'],[['^1','?','?',''],['^2','?','?',''],['^3','?','?',''],['^4','?','?','']],[10,42,36,12])+
+   Q(1,'내가 맡은 일과 모둠에 도움이 된 점을 적어 보세요')+L(3)},
+ {id:'g-rubric',cat:'평가',n:'평가 기준표',d:'기준별 3단계와 체크 칸, 근거 쓰기, 동료 피드백',
+  b:GOALP()+T(['평가 요소','잘함','보통','노력 필요','^체크'],[['!?평가 요소','?기준','?기준','?기준',''],['!?평가 요소','?기준','?기준','?기준',''],['!?평가 요소','?기준','?기준','?기준','']],[18,24,24,22,12])+
+   Q(1,'체크한 수준을 고른 이유를 활동 장면을 들어 적어 보세요')+L(3)+'<h2>동료에게 한마디</h2>'+T(['친구 이름','잘한 점','제안'],[['?','?','?'],['?','?','?']],[18,41,41])}
+];
+GENERAL.forEach(f=>{f.html=(f.noTB?'':titlebarHTML('','hakbeon'))+f.b});
+const ALLFORMS=[...GENERAL,...FORMS];
+const BLANK=()=>titlebarHTML('','hakbeon')+'<p><br></p>';
 
 /* ---------- 4. 문서 바꾸기 공통 ---------- */
 const cleanH=h=>{try{return typeof clean==='function'?clean(h):h}catch(e){return h}};
-function afterLoad(){call('normalizeSymbols');call('resizeStoredSymbols');call('fitExistingScores');try{range=null}catch(e){}migrate();fix();save()}
+function afterLoad(){call('normalizeSymbols');call('resizeStoredSymbols');call('fitExistingScores');try{range=null}catch(e){}hadRule=false;migrate();fix();markEmpty();save()}
 function setDoc(html){ed.innerHTML=cleanH(html);afterLoad();ed.scrollTop=0;window.scrollTo(0,0);const h=ed.querySelector('.ns-titlebar h1');if(h)caretTo(h,true)}
 function docIsEmpty(){const t=ed.cloneNode(true);t.querySelectorAll('.ns-id').forEach(x=>x.remove());const txt=t.textContent.replace(/[\s\u00a0_]/g,'').replace(/^활동지제목/,'');return !txt&&!t.querySelector('img,svg,table')}
 function docText(root){const c=root.cloneNode(true);c.querySelectorAll('.ns-id').forEach(x=>x.remove());c.querySelectorAll('p,div').forEach(x=>{const t=(x.textContent||'').replace(/[\s\u3000]/g,'');if(t&&t.length<60&&LEG.test(t))x.remove()});return c.textContent.replace(/[\s\u00a0\u3000]/g,'')}
@@ -2073,9 +2210,9 @@ g.innerHTML='<div class="nd-head"><div><h2>양식과 디자인</h2><p>양식은 
 document.body.append(g);
 const body=g.querySelector('.ng-body');
 let tab='forms',cat='전체',pending=null;
-const CATS=['전체','기본','감상','창작','연주','협동·성찰','이론','평가'];
+const CATS=['전체','수업','활동','정리','평가','음악 예시'];
 function mine(){try{const a=JSON.parse(localStorage.getItem('notasheet-custom-templates-v1')||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.html==='string'&&typeof x.name==='string'):[]}catch(e){return[]}}
-function pv(html,r){const d=document.createElement('div');d.className='ns-pv';d.innerHTML=cleanH(html);d.querySelectorAll('[contenteditable]').forEach(x=>x.removeAttribute('contenteditable'));paint(d,r||resolve(ed.dataset.design));return d}
+function pv(html,r){const d=document.createElement('div');d.className='ns-pv';d.innerHTML=cleanH(html);d.querySelectorAll('[contenteditable]').forEach(x=>x.removeAttribute('contenteditable'));d.querySelectorAll('.ns-sel').forEach(x=>x.classList.remove('ns-sel'));markEmpty(d);paint(d,r||resolve(ed.dataset.design));return d}
 function fitPv(frame){const d=frame.querySelector('.ns-pv');if(!d)return;const w=frame.clientWidth-20;d.style.transform='scale('+(w/794)+')'}
 function card(item,isMine){
  const a=document.createElement('article');a.className='ng-card';
@@ -2092,14 +2229,15 @@ function card(item,isMine){
 function addToDoc(html){
  const t=document.createElement('template');t.innerHTML=cleanH(html);
  t.content.querySelectorAll('.ns-titlebar').forEach(x=>{const h=x.querySelector('h1');if(h&&TB()){const h2=document.createElement('h2');h2.innerHTML=h.innerHTML;x.replaceWith(h2)}else if(h){x.replaceWith(h)}else x.remove()});
+ t.content.querySelectorAll('.ns-title-rule').forEach(x=>x.remove());
  const w=document.createElement('div');w.append(t.content);
  moveRangeOutOfTitle();call('insert',w.innerHTML+'<p><br></p>');fix();
 }
 function renderForms(){
- body.innerHTML='<p class="ng-note"><b>새 문서로 시작</b>은 지금 문서를 이 양식으로 바꿉니다. <b>본문만 추가</b>는 제목 칸을 빼고 본문만 커서 위치에 넣습니다. 미리보기는 지금 고른 디자인으로 보여 줍니다.</p><div class="ng-chips">'+CATS.map(c=>'<button type="button" class="'+(c===cat?'on':'')+'" data-c="'+c+'">'+c+'</button>').join('')+'</div><div class="ng-grid"></div>';
+ body.innerHTML='<p class="ng-note"><b>새 문서로 시작</b>은 지금 문서를 이 틀로 바꾸고, <b>본문만 추가</b>는 제목 칸을 빼고 커서 위치에 넣습니다. 회색 안내 글은 글자를 치면 사라지고 인쇄되지 않아요.</p><div class="ng-chips">'+CATS.map(c=>'<button type="button" class="'+(c===cat?'on':'')+'" data-c="'+c+'">'+c+'</button>').join('')+'</div><div class="ng-grid"></div>';
  body.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderForms()});
  const grid=body.querySelector('.ng-grid');
- FORMS.filter(f=>cat==='전체'||f.cat===cat).forEach(f=>grid.append(card(f)));
+ ALLFORMS.filter(f=>cat==='전체'?f.cat!=='음악 예시':f.cat===cat).forEach(f=>grid.append(card(f)));
  requestAnimationFrame(()=>grid.querySelectorAll('.ng-frame').forEach(fitPv));
 }
 function renderMine(){
@@ -2122,13 +2260,13 @@ function renderDesign(){
   '<div class="dz-row"><div class="dz-sec" style="font-weight:600;font-size:12.5px">제목 모양</div><div class="dz-opts">'+Object.entries(TITLE).map(([k,n])=>'<button type="button" class="'+(k===pending.t?'on':'')+'" data-title="'+k+'">'+n+'</button>').join('')+'</div></div>'+
  '</div><div class="dz-pvwrap"><div class="dz-pvbox"></div><p class="dz-pvcap">지금 문서에 적용한 모습입니다. 직접 굵게·색을 바꾼 글자는 그대로 유지돼요.</p><button type="button" class="nd-btn pri dz-apply">이 디자인 적용</button></div></div>';
  const box=body.querySelector('.dz-pvbox');
- let src=ed.innerHTML;if(docIsEmpty())src=FORMS[1].html;
+ let src=ed.innerHTML;if(docIsEmpty())src=GENERAL[0].html;
  const d=pv(src,pending);box.append(d);requestAnimationFrame(()=>{d.style.transform='scale('+((box.clientWidth-24)/794)+')'});
  body.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const p=PRESET.find(x=>x.id===b.dataset.p);pending={p:p.p,f:p.f,t:p.t};renderDesign()});
  body.querySelectorAll('[data-pal]').forEach(b=>b.onclick=()=>{pending={...pending,p:b.dataset.pal};renderDesign()});
  body.querySelectorAll('[data-font]').forEach(b=>b.onclick=()=>{pending={...pending,f:b.dataset.font};renderDesign()});
  body.querySelectorAll('[data-title]').forEach(b=>b.onclick=()=>{pending={...pending,t:b.dataset.title};renderDesign()});
- body.querySelector('.dz-apply').onclick=()=>{ed.dataset.design=designKey(pending);applyDesign();save();g.close();const p=PRESET.find(x=>x.id===ed.dataset.design);say((p?'‘'+p.n+'’':'직접 조합한')+' 디자인을 적용했어요.')};
+ body.querySelector('.dz-apply').onclick=()=>{ed.dataset.design=designKey(pending);if(pending.t==='rule'||pending.t==='classic'){const tb=TB();if(tb&&tb.dataset.rule==='off'){delete tb.dataset.rule;hadRule=false;fix()}}applyDesign();save();g.close();const p=PRESET.find(x=>x.id===ed.dataset.design);say((p?'‘'+p.n+'’':'직접 조합한')+' 디자인을 적용했어요.')};
 }
 function render(){g.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));g.querySelector('[data-act=savemine]').hidden=tab==='design';body.scrollTop=0;if(tab==='design')renderDesign();else if(tab==='mine')renderMine();else renderForms()}
 g.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
@@ -2148,7 +2286,7 @@ function openStart(isNew){
  '<div class="st-grid">'+
  (cont?'<button type="button" class="st-card main" data-s="cont"><span class="ic">↺</span><div><b>이어서 작업하기</b><span>‘'+esc(title.slice(0,24))+'’<br>이 브라우저에 저장된 문서를 엽니다</span></div></button>':'')+
  '<button type="button" class="st-card'+(cont?'':' main')+'" data-s="blank"><span class="ic">＋</span><div><b>빈 활동지</b><span>제목과 학번·이름 칸만 있는 문서로 시작합니다</span></div></button>'+
- '<button type="button" class="st-card" data-s="forms"><span class="ic">▤</span><div><b>양식 골라 시작</b><span>감상·창작·연주·평가용 양식 '+FORMS.length+'가지를 미리 보고 고릅니다</span></div></button>'+
+ '<button type="button" class="st-card" data-s="forms"><span class="ic">▤</span><div><b>양식 골라 시작</b><span>학습지·노트·평가지 등 기본 틀 '+GENERAL.length+'가지를 미리 보고 고릅니다</span></div></button>'+
  '<button type="button" class="st-card" data-s="example"><span class="ic">◎</span><div><b>예시 활동지 보기</b><span>정답 지정·음악 기호가 들어간 예시로 기능을 둘러봅니다</span></div></button>'+
  '</div>'+
  (isNew?'':'<div class="st-steps"><b>만드는 순서</b>　① 왼쪽에서 표·악보·답안 공간 넣기 → ② 정답 글자를 골라 [정답 지정] → ③ 위쪽 [학생용 인쇄]로 정답을 숨겨 인쇄·PDF 저장</div>')+
@@ -2202,10 +2340,10 @@ function wire(){
  if(td)td.onclick=()=>openGallery('design');
  const nb=$('#new');if(nb)nb.onclick=()=>openStart(true);
  rebindIdButton();labels();folding();tabIntro();
- const op=$('#file');if(op&&!op.dataset.nsV2){op.dataset.nsV2='1';op.addEventListener('change',()=>setTimeout(()=>{migrate();fix();applyDesign();save()},300))}
+ const op=$('#file');if(op&&!op.dataset.nsV2){op.dataset.nsV2='1';op.addEventListener('change',()=>setTimeout(()=>{hadRule=false;migrate();fix();markEmpty();applyDesign();save()},300))}
 }
 
-migrate();fix();applyDesign();save();
+hadRule=false;migrate();fix();markEmpty();applyDesign();save();
 wire();
 const INTRO_KEY='notasheet_intro_seen_20261104';
 document.addEventListener('DOMContentLoaded',()=>{
