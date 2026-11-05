@@ -147,7 +147,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ---
 
-## 4. 웹 글꼴
+## 4. docx 9.5.1 — MIT License
+
+- 이 저장소에 파일로 포함하지 않고, 'Word로 저장'을 누를 때 jsDelivr에서 불러와 사용합니다.
+- 저작권: Copyright (c) 2016 Dolan Miu
+- 출처: https://github.com/dolanmiu/docx
+- 라이선스 전문: 위 1번의 MIT License와 같은 내용입니다(저작권자만 다름).
+
+---
+
+## 5. 웹 글꼴
 
 글꼴 파일은 이 저장소에 포함하지 않고, Google Fonts와 jsDelivr(눈누 프로젝트)에서 불러와 사용합니다.
 

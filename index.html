@@ -1,6 +1,6 @@
 <!doctype html><html lang="ko" class="app-loading"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NotaSheet · 음악 활동지</title><script>
 /* NotaSheet 오류 기록: 오류가 나면 화면 오른쪽 아래에 버튼이 나타나고, 누르면 보고 내용이 복사돼요 */
-window.NOTA_VERSION='2026-11-04-r1';
+window.NOTA_VERSION='2026-11-05-r1';
 (()=>{
  const errs=[],clicks=[];
  const top3=s=>String(s||'').split('\n').slice(0,3).join(' | ').slice(0,260);
@@ -1014,7 +1014,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 .nota-foot a{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1px solid #dfe4ec;background:#fff;color:#4b5567;text-decoration:none;transition:.15s}
 .nota-foot a:hover{color:#fff;border-color:transparent}.nota-foot a.ig:hover{background:#d6249f}.nota-foot a.yt:hover{background:#ff0000}.nota-foot a.bl:hover{background:#03c75a}
 .nota-foot svg{width:17px;height:17px}
-@media print{.nota-foot{display:none!important}}
+@media print{.nota-foot,.word-wrap{display:none!important}}
+#editor table[data-rz=col],#editor table[data-rz=col] *,body.rz-col,body.rz-col *{cursor:col-resize!important}#editor table[data-rz=row],#editor table[data-rz=row] *,body.rz-row,body.rz-row *{cursor:row-resize!important}body.rz-col,body.rz-row{user-select:none}
+.word-wrap{position:relative;display:inline-block}#wordMenu{position:absolute;right:0;top:calc(100% + 6px);z-index:80;background:#fff;border:1px solid #d6dce6;border-radius:9px;box-shadow:0 8px 24px #23334a26;padding:6px;min-width:180px;display:flex;flex-direction:column;gap:3px}#wordMenu[hidden]{display:none}#wordMenu button{text-align:left;border:0;background:none;padding:8px 10px;border-radius:6px;font-size:13px;cursor:pointer;white-space:nowrap}#wordMenu button:hover{background:#eef3fa}#wordMenu .wm-note{font-size:11px;color:#7b8598;padding:4px 10px 2px;border-top:1px solid #edf0f4;margin-top:2px}
 </style>
 <script>
 /* ===== 왼쪽 아래: 저작권 표시 + 율쌤 링크 ===== 주소는 아래 세 줄에 넣으면 돼요 */
@@ -1036,6 +1038,130 @@ const NOTA_LINKS={
 /* 첫 화면: 모든 준비(배치 · 글꼴)가 끝난 뒤 한 번에 보이기 (최대 1.2초 기다림) */
 (function(){const H=document.documentElement;let shown=false;const show=()=>{if(shown)return;shown=true;requestAnimationFrame(()=>H.classList.remove('app-loading'))};setTimeout(show,1200);
  const fr=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();const ready=document.readyState==='complete'?Promise.resolve():new Promise(r=>addEventListener('load',r,{once:true}));Promise.all([fr,ready]).then(show,show)})();
+</script>
+<script>
+/* ===== Word(.docx)로 내려받기 — 한글에서도 열 수 있어요 =====
+   필요할 때만 docx 라이브러리(MIT)를 불러와 화면의 문서를 Word 문서로 바꿉니다. 학생용은 정답을 빈칸(밑줄)으로 바꿔요. */
+(function(){
+ const DOCX_URL='https://cdn.jsdelivr.net/npm/docx@9.5.1/dist/index.iife.js';
+ let loading=null;
+ const loadDocx=()=>window.docx?Promise.resolve(window.docx):(loading||(loading=new Promise((ok,no)=>{const s=document.createElement('script');s.src=DOCX_URL;s.onload=()=>window.docx?ok(window.docx):no(new Error('docx 없음'));s.onerror=()=>{loading=null;no(new Error('라이브러리를 불러오지 못했어요'))};document.head.append(s)})));
+ const tw=mm=>Math.round(mm*56.693);
+ const hex=c=>{const m=String(c||'').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/);if(!m||(m[4]!==undefined&&+m[4]===0))return null;return [m[1],m[2],m[3]].map(v=>(+v).toString(16).padStart(2,'0')).join('').toUpperCase()};
+ const FONTMAP={'pretendard':'맑은 고딕','malgun gothic':'맑은 고딕','arial':'맑은 고딕'};
+ const fontOf=ff=>{const f=String(ff||'').split(',')[0].replace(/["']/g,'').trim();return FONTMAP[f.toLowerCase()]||f||'맑은 고딕'};
+ const BLOCK=new Set(['P','H1','H2','H3','H4','H5','H6','DIV','TABLE','UL','OL','LI','HR','BLOCKQUOTE','SECTION','FIGURE','HEADER','FOOTER','ARTICLE']);
+ function rast(src,w,h){return new Promise(res=>{if(!src)return res(null);const im=new Image();im.onload=()=>{try{const sc=2,c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*sc));c.height=Math.max(1,Math.round(h*sc));const g=c.getContext('2d');g.drawImage(im,0,0,c.width,c.height);c.toBlob(b=>b?b.arrayBuffer().then(a=>res(new Uint8Array(a))):res(null),'image/png')}catch(e){res(null)}};im.onerror=()=>res(null);im.src=src})}
+ const svgURL=svg=>{const s=svg.cloneNode(true);s.setAttribute('xmlns','http://www.w3.org/2000/svg');return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(s))};
+ async function build(student){
+  const D=await loadDocx(),ed=document.querySelector('#editor'),M=typeof pageMargin==='number'?pageMargin:15,land=typeof pageOrientation!=='undefined'&&pageOrientation==='landscape';
+  const CWmm=(land?297:210)-2*M,CWpx=CWmm*3.7795,CWtw=tw(CWmm),edW=ed.getBoundingClientRect().width||CWpx,pxScale=CWpx/Math.max(1,edW-(parseFloat(getComputedStyle(ed).paddingLeft)||0)-(parseFloat(getComputedStyle(ed).paddingRight)||0));
+  const AL={center:D.AlignmentType.CENTER,right:D.AlignmentType.RIGHT,justify:D.AlignmentType.JUSTIFIED,left:D.AlignmentType.LEFT,start:D.AlignmentType.LEFT,end:D.AlignmentType.RIGHT};
+  async function img(el,maxW){let src=el.tagName==='IMG'?el.currentSrc||el.src:null;
+   if(el.tagName==='IMG'&&el.dataset.notaAlt&&el.dataset.notaVer&&((student&&el.dataset.notaVer!=='stu')||(!student&&el.dataset.notaVer==='stu')))src=el.dataset.notaAlt;
+   if(el.tagName.toLowerCase()==='svg')src=svgURL(el);
+   const r=el.getBoundingClientRect();let w=(r.width||el.naturalWidth||100)*pxScale,h=(r.height||el.naturalHeight||60)*pxScale;const mw=maxW||CWpx;if(w>mw){h*=mw/w;w=mw}
+   const data=await rast(src,w,h);return data?new D.ImageRun({type:'png',data,transformation:{width:Math.round(w),height:Math.round(h)}}):null}
+  async function runs(node,f,out){
+   if(node.nodeType===3){const t=node.nodeValue.replace(/[\r\n\t]+/g,' ');if(t)out.push(new D.TextRun(Object.assign({text:t},f)));return}
+   if(node.nodeType!==1)return;const el=node,tg=el.tagName,cs=getComputedStyle(el);
+   if(tg==='BR'){out.push(new D.TextRun({break:1}));return}
+   if(tg==='IMG'||tg.toLowerCase()==='svg'){const r=await img(el);if(r)out.push(r);return}
+   if(el.classList.contains('music-symbol')){const s=el.querySelector('svg');if(s){const r=await img(s);if(r)out.push(r)}return}
+   if(cs.display==='none')return;
+   const g=Object.assign({},f);
+   if(tg==='B'||tg==='STRONG'||+cs.fontWeight>=600)g.bold=true;if(tg==='I'||tg==='EM'||cs.fontStyle==='italic')g.italics=true;
+   if(tg==='U'||/underline/.test(cs.textDecorationLine||''))g.underline={};if(tg==='S'||tg==='STRIKE'||/line-through/.test(cs.textDecorationLine||''))g.strike=true;
+   if(el.style.color){const c=hex(cs.color);if(c)g.color=c}if(el.style.fontSize)g.size=Math.round(parseFloat(cs.fontSize)*.75*2);if(el.style.fontFamily)g.font=fontOf(cs.fontFamily);
+   if(el.style.backgroundColor){const c=hex(cs.backgroundColor);if(c)g.shading={type:D.ShadingType.CLEAR,color:'auto',fill:c}}
+   if(el.classList.contains('answer')){const t=el.textContent||'';if(student){const n=Math.max(6,Math.ceil(t.length*1.6));let s='';for(let k=0;k<n;k++)s+=(k&&k%8===0?'\u200B':'')+'_';out.push(new D.TextRun(Object.assign({},g,{text:s,color:'777777'})));}else out.push(new D.TextRun(Object.assign({},g,{text:t,color:'C00000',underline:{}})));return}
+   for(const c of el.childNodes)await runs(c,g,out)}
+  const base=el=>{const cs=getComputedStyle(el),o={};const a=AL[(el.style.textAlign||cs.textAlign||'').toLowerCase()];if(a&&a!==D.AlignmentType.LEFT)o.alignment=a;return o};
+  async function para(el,extra){const out=[];for(const c of el.childNodes)await runs(c,{},out);if(!out.length)out.push(new D.TextRun(''));return new D.Paragraph(Object.assign({children:out,spacing:{after:100}},base(el),extra||{}))}
+  async function blocks(nodes,out,inCell){let buf=[];
+   const flush=async()=>{if(!buf.length)return;const tmp=document.createElement('span');const rr=[];for(const n of buf)await runs(n,{},rr);buf=[];if(rr.some(r=>!(r instanceof D.TextRun))||rr.length)out.push(new D.Paragraph({children:rr.length?rr:[new D.TextRun('')],spacing:{after:100}}))};
+   for(const n of nodes){
+    if(n.nodeType===3){if(n.nodeValue.trim())buf.push(n);continue}if(n.nodeType!==1)continue;const el=n,tg=el.tagName;
+    if(!BLOCK.has(tg)){buf.push(el);continue}await flush();if(getComputedStyle(el).display==='none')continue;
+    if(/^H[1-6]$/.test(tg)){const lv=+tg[1],sz=[0,40,28,24,22,22,22][lv];const p=[];for(const c of el.childNodes)await runs(c,{bold:true,size:sz,color:'111111'},p);out.push(new D.Paragraph(Object.assign({heading:[0,D.HeadingLevel.HEADING_1,D.HeadingLevel.HEADING_2,D.HeadingLevel.HEADING_3,D.HeadingLevel.HEADING_4,D.HeadingLevel.HEADING_5,D.HeadingLevel.HEADING_6][lv],children:p.length?p:[new D.TextRun('')],spacing:{before:lv===1?0:200,after:120}},base(el),lv===1?{border:{bottom:{style:D.BorderStyle.SINGLE,size:12,color:'222222',space:4}}}:{})));continue}
+    if(tg==='HR'||el.classList.contains('break')){out.push(el.classList.contains('break')?new D.Paragraph({children:[new D.PageBreak()]}):new D.Paragraph({border:{bottom:{style:D.BorderStyle.SINGLE,size:6,color:'999999',space:1}},children:[]}));continue}
+    if(tg==='UL'||tg==='OL'){let i=0;for(const li of el.children){if(li.tagName!=='LI')continue;i++;const p=[];for(const c of li.childNodes)await runs(c,{},p);out.push(new D.Paragraph(Object.assign({children:p.length?p:[new D.TextRun('')],spacing:{after:60}},tg==='UL'?{bullet:{level:0}}:{numbering:{reference:'nota-num',level:0,instance:olN}})));}if(tg==='OL')olN++;continue}
+    if(tg==='TABLE'){out.push(await table(el));out.push(new D.Paragraph({children:[],spacing:{after:80}}));continue}
+    if(el.classList.contains('document-textbox')){const cs=getComputedStyle(el),hasB=parseFloat(cs.borderTopWidth)>0&&cs.borderTopStyle!=='none';
+     if(!hasB){await blocks(el.childNodes.length?el.childNodes:[],out,inCell);if(!el.querySelector('p,div'))out.push(await para(el,base(el)));continue}
+     const inner=[];await blocks(el.childNodes,inner,true);if(!inner.length)inner.push(new D.Paragraph(''));const w=Math.min(CWtw,Math.round(el.getBoundingClientRect().width*pxScale*15));
+     out.push(new D.Table({width:{size:w,type:D.WidthType.DXA},columnWidths:[w],rows:[new D.TableRow({children:[new D.TableCell({width:{size:w,type:D.WidthType.DXA},margins:{top:100,bottom:100,left:140,right:140},children:inner})]})]}));out.push(new D.Paragraph({children:[],spacing:{after:80}}));continue}
+    if(tg==='P'||tg==='LI'||tg==='BLOCKQUOTE'||(tg==='DIV'&&![...el.children].some(c=>BLOCK.has(c.tagName)))){
+     const cs=getComputedStyle(el),ex={};if(parseFloat(cs.borderBottomWidth)>0&&cs.borderBottomStyle!=='none'){ex.border={bottom:{style:D.BorderStyle.SINGLE,size:6,color:hex(cs.borderBottomColor)||'999999',space:1}};const h=parseFloat(el.style.height)||0;if(h>20)ex.spacing={before:Math.round((h-18)*15),after:60}}
+     out.push(await para(el,ex));continue}
+    await blocks(el.childNodes,out,inCell)}
+   await flush()}
+  let olN=0;
+  async function table(t){const rows=[...t.rows],tr=t.getBoundingClientRect().width||1,tW=Math.min(CWtw,Math.round(tr*pxScale*15));
+   const ref=rows.reduce((a,r)=>r.cells.length>a.cells.length?r:a,rows[0]),cols=[...ref.cells].map(c=>Math.max(300,Math.round(c.getBoundingClientRect().width/tr*tW)));const sum=cols.reduce((a,b)=>a+b,0);cols[cols.length-1]+=tW-sum;
+   const B={style:D.BorderStyle.SINGLE,size:4,color:'555555'},borders={top:B,bottom:B,left:B,right:B};
+   const R=[];for(const r of rows){const cells=[];for(const c of r.cells){const inner=[];await blocks(c.childNodes,inner,true);if(!inner.length)inner.push(new D.Paragraph(''));const cs=getComputedStyle(c),bg=hex(cs.backgroundColor);
+     cells.push(new D.TableCell(Object.assign({children:inner,borders,width:{size:Math.round(c.getBoundingClientRect().width/tr*tW),type:D.WidthType.DXA},margins:{top:60,bottom:60,left:100,right:100}},c.colSpan>1?{columnSpan:c.colSpan}:{},c.rowSpan>1?{rowSpan:c.rowSpan}:{},bg&&bg!=='FFFFFF'?{shading:{type:D.ShadingType.CLEAR,color:'auto',fill:bg}}:{})))}
+    R.push(new D.TableRow({children:cells}))}
+   return new D.Table({width:{size:tW,type:D.WidthType.DXA},columnWidths:cols,rows:R})}
+  const children=[];await blocks(ed.childNodes,children,false);
+  const doc=new D.Document({creator:'NotaSheet',title:(ed.querySelector('h1')||{}).textContent||'활동지',
+   styles:{default:{document:{run:{font:'맑은 고딕',size:22}}},paragraphStyles:[1,2,3].map(n=>({id:'Heading'+n,name:'Heading '+n,basedOn:'Normal',next:'Normal',quickFormat:true,run:{font:'맑은 고딕',bold:true,color:'111111',size:[0,40,28,24][n]},paragraph:{outlineLevel:n-1}}))},
+   numbering:{config:[{reference:'nota-num',levels:[{level:0,format:D.LevelFormat.DECIMAL,text:'%1.',alignment:D.AlignmentType.LEFT,style:{paragraph:{indent:{left:420,hanging:300}}}}]}]},
+   sections:[{properties:{page:{size:{width:11906,height:16838,orientation:land?D.PageOrientation.LANDSCAPE:D.PageOrientation.PORTRAIT},margin:{top:tw(M),bottom:tw(M),left:tw(M),right:tw(M)}}},children}]});
+  return D.Packer.toBlob(doc)}
+ async function download(student){const ed=document.querySelector('#editor');if(!ed)return;const t=(window.toast||alert);
+  try{t('Word 파일을 만들고 있어요…');const blob=await build(student);const name=((ed.querySelector('h1')||{}).textContent||'활동지').trim().replace(/[\\/:*?"<>|]/g,'').slice(0,40)||'활동지';
+   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+(student?' (학생용)':' (교사용)')+'.docx';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);t('Word 파일을 내려받았어요. 한글에서도 열 수 있어요.')}
+  catch(e){console.error(e);t('Word 파일을 만들지 못했어요: '+e.message)}}
+ window.notaDocx={build,download};
+ /* 머리 줄 버튼: Word로 저장 ▾ (학생용 / 교사용) */
+ const save=document.querySelector('#save');if(!save||document.querySelector('#wordBtn'))return;
+ const wrap=document.createElement('span');wrap.className='word-wrap';wrap.innerHTML='<button id="wordBtn" title="Word 파일(.docx)로 내려받기 · 한글에서도 열려요">Word로 저장 ▾</button><div id="wordMenu" hidden><button data-w="stu">학생용 (정답 빈칸)</button><button data-w="tea">교사용 (정답 표시)</button><div class="wm-note">.docx 파일 · 한글에서도 열 수 있어요</div></div>';
+ save.after(wrap);const menu=wrap.querySelector('#wordMenu');
+ wrap.querySelector('#wordBtn').onclick=e=>{e.stopPropagation();menu.hidden=!menu.hidden};
+ menu.onclick=e=>{const b=e.target.closest('button');if(!b)return;menu.hidden=true;download(b.dataset.w==='stu')};
+ document.addEventListener('click',e=>{if(!wrap.contains(e.target))menu.hidden=true});
+})();
+
+</script>
+<script>
+/* ===== 표 칸 크기 조절: 칸 경계선을 끌면 열 너비·행 높이가 바뀌어요 (열 경계 더블클릭 = 열 너비 똑같이) ===== */
+(function(){const ed=document.querySelector('#editor');if(!ed)return;const EDGE=5;let drag=null;
+ const refRow=t=>[...t.rows].reduce((a,r)=>{const n=[...r.cells].reduce((s,c)=>s+(c.colSpan||1),0);return n>a.n?{r,n}:a},{r:t.rows[0],n:0}).r;
+ const nCols=t=>{const r=refRow(t);return r?[...r.cells].reduce((s,c)=>s+(c.colSpan||1),0):0};
+ function bounds(t){const cg=t.querySelector(':scope>colgroup');const tr=t.getBoundingClientRect();
+  if(cg&&cg.children.length){let x=tr.left;return [...cg.children].map(c=>{x+=c.getBoundingClientRect().width||0;return x})}
+  const r=refRow(t);return r?[...r.cells].map(c=>c.getBoundingClientRect().right):[]}
+ function ensureCols(t){let cg=t.querySelector(':scope>colgroup');const n=nCols(t);if(cg&&cg.children.length===n)return cg;
+  const r=refRow(t),tw=t.getBoundingClientRect().width||1,ws=[];[...r.cells].forEach(c=>{const w=c.getBoundingClientRect().width/(c.colSpan||1);for(let k=0;k<(c.colSpan||1);k++)ws.push(w)});
+  if(cg)cg.remove();cg=document.createElement('colgroup');ws.forEach(w=>{const col=document.createElement('col');col.style.width=(w/tw*100).toFixed(2)+'%';cg.append(col)});t.prepend(cg);
+  t.querySelectorAll('td,th').forEach(c=>c.style.removeProperty('width'));t.style.tableLayout='fixed';return cg}
+ function zone(e){const td=e.target.closest&&e.target.closest('td,th');if(!td||!ed.contains(td))return null;const t=td.closest('table'),tr=td.parentElement,rr=tr.getBoundingClientRect();
+  const bs=bounds(t),tb=t.getBoundingClientRect();
+  for(let i=0;i<bs.length;i++)if(Math.abs(e.clientX-bs[i])<=EDGE&&e.clientY>=tb.top&&e.clientY<=tb.bottom)return{type:'col',t,i,last:i===bs.length-1};
+  if(Math.abs(e.clientY-rr.bottom)<=EDGE)return{type:'row',t,tr};
+  const prev=tr.previousElementSibling;if(prev&&Math.abs(e.clientY-rr.top)<=EDGE)return{type:'row',t,tr:prev};
+  return null}
+ const changed=()=>ed.dispatchEvent(new Event('input',{bubbles:true}));
+ let hoverT=null;
+ ed.addEventListener('mousemove',e=>{if(drag)return;const z=zone(e);if(hoverT&&(!z||z.t!==hoverT)){hoverT.removeAttribute('data-rz');hoverT=null}if(z){z.t.setAttribute('data-rz',z.type);hoverT=z.t}});
+ ed.addEventListener('mouseleave',()=>{if(hoverT&&!drag){hoverT.removeAttribute('data-rz');hoverT=null}});
+ ed.addEventListener('mousedown',e=>{if(e.button!==0)return;const z=zone(e);if(!z)return;e.preventDefault();e.stopPropagation();
+  if(z.type==='col'){const cg=ensureCols(z.t),cols=[...cg.children],tw=z.t.getBoundingClientRect().width,pw=z.t.parentElement.getBoundingClientRect().width||tw;
+   drag={type:'col',t:z.t,x0:e.clientX,cols,i:z.i,last:z.last,tw,pw,w0:cols.map(c=>c.getBoundingClientRect().width)}}
+  else drag={type:'row',t:z.t,tr:z.tr,y0:e.clientY,h0:z.tr.getBoundingClientRect().height};
+  document.body.classList.add(drag.type==='col'?'rz-col':'rz-row')},true);
+ document.addEventListener('mousemove',e=>{if(!drag)return;e.preventDefault();
+  if(drag.type==='row'){const h=Math.max(18,Math.round(drag.h0+e.clientY-drag.y0));[...drag.tr.cells].forEach(c=>c.style.height=h+'px');return}
+  const dx=e.clientX-drag.x0,MIN=28,{cols,i,w0}=drag;
+  if(drag.last){/* 오른쪽 끝: 표 전체 너비 */const nw=Math.max(MIN*cols.length,Math.min(drag.pw,drag.tw+dx));drag.t.style.width=(nw/drag.pw*100).toFixed(2)+'%';return}
+  const a=Math.max(MIN,Math.min(w0[i]+w0[i+1]-MIN,w0[i]+dx)),b=w0[i]+w0[i+1]-a;cols[i].style.width=(a/drag.tw*100).toFixed(2)+'%';cols[i+1].style.width=(b/drag.tw*100).toFixed(2)+'%'});
+ document.addEventListener('mouseup',()=>{if(!drag)return;drag=null;document.body.classList.remove('rz-col','rz-row');changed()});
+ ed.addEventListener('dblclick',e=>{const z=zone(e);if(!z)return;e.preventDefault();
+  if(z.type==='col'){const cg=ensureCols(z.t),n=cg.children.length;[...cg.children].forEach(c=>c.style.width=(100/n).toFixed(2)+'%')}else [...z.tr.cells].forEach(c=>c.style.removeProperty('height'));changed()},true);
+})();
+
 </script>
 </html>
 
